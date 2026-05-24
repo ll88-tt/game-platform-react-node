@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>关于项目 · GAMEVILA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0e14;
+            color: #edf2f7;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #cbd5e1;
+            font-weight: 500;
+            transition: color 0.2s;
+            font-size: 1rem;
+        }
+
+        .nav-links a:hover {
+            color: #a78bfa;
+        }
+
+        .back-home {
+            background: linear-gradient(145deg, #7c3aed, #a855f7);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white !important;
+            font-weight: 600;
+            box-shadow: 0 6px 14px rgba(124, 58, 237, 0.3);
+            transition: all 0.2s;
+        }
+
+        .back-home:hover {
+            background: #8b5cf6;
+            transform: scale(1.02);
+            box-shadow: 0 8px 18px rgba(139, 92, 246, 0.4);
+        }
+
+        .page-header {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #d8b4fe, #f9a8d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #9ca3af;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: #a78bfa;
+        }
+
+        .section-content {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .feature-card {
+            background: #161e2a;
+            border: 1px solid #2a3748;
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.25s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: #7c3aed60;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            color: #a78bfa;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #edf2f7;
+        }
+
+        .feature-desc {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .tech-badge {
+            background: #1e2632;
+            border: 1px solid #2d3f54;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tech-badge:hover {
+            border-color: #a78bfa;
+            background: #2d3748;
+            transform: translateY(-2px);
+        }
+
+        .tech-badge i {
+            color: #a78bfa;
+            font-size: 1.2rem;
+        }
+
+        .architecture-diagram {
+            background: #161e2a;
+            border: 1px solid #2a3748;
+            border-radius: 20px;
+            padding: 32px;
+            margin-top: 24px;
+            overflow-x: auto;
+        }
+
+        .diagram-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #a78bfa;
+        }
+
+        .flow-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .flow-item {
+            background: #1e2632;
+            border: 2px solid #7c3aed;
+            padding: 16px 24px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .flow-item i {
+            font-size: 1.8rem;
+            color: #a78bfa;
+            margin-bottom: 8px;
+        }
+
+        .flow-item div {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .flow-arrow {
+            color: #64748b;
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e2632, #161e2a);
+            border: 1px solid #2a3748;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .code-block {
+            background: #0f1419;
+            border: 1px solid #2a3748;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            color: #a78bfa;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 24px 0;
+            text-align: center;
+            color: #6b7b8f;
+            border-top: 1px solid #1e2a36;
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2.2rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .flow-container {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <div class="logo"><i class="fas fa-gamepad" style="margin-right: 6px; color: #c084fc;"></i>GAMEVILA</div>
+        <div class="nav-links">
+            <a href="home.html">首页</a>
+            <a href="service.html">服务</a>
+            <a href="about.html" style="color: #a78bfa;">关于</a>
+            <a href="home.html" class="back-home"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-info-circle"></i> 关于本项目</h1>
+        <p class="page-subtitle">一个现代化的游戏平台，采用前后端分离架构，实现用户认证、权限管理和游戏浏览功能</p>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-lightbulb"></i> 项目概述</h2>
+        <div class="section-content">
+            <p>GAMEVILA 是一个基于 Spring Boot 构建的现代化游戏平台，旨在为用户提供便捷的游戏浏览、搜索和管理体验。项目采用了当前主流的技术栈，实现了完整的用户认证系统、分级权限控制、智能搜索等功能。</p>
+            <br>
+            <p><strong>核心目标：</strong>打造一个高性能、可扩展、安全的游戏平台，支持用户注册登录、VIP订阅管理、游戏分类浏览、智能搜索等核心功能。</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">核心功能模块</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">主要技术组件</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">REST</div>
+                <div class="stat-label">API 设计风格</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">MVC</div>
+                <div class="stat-label">架构模式</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-cogs"></i> 核心功能</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                <div class="feature-title">用户认证系统</div>
+                <div class="feature-desc">完整的用户注册、登录、登出功能，采用 BCrypt 密码加密，确保用户数据安全。支持会话管理和自动登录状态检测。</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-crown"></i></div>
+                <div class="feature-title">VIP 权限管理</div>
+                <div class="feature-desc">分级权限系统（免费/月度/季度/年度/终身VIP），根据用户等级展示不同内容，支持 VIP 订阅和权限验证。</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-search"></i></div>
+                <div class="feature-title">智能搜索</div>
+                <div class="feature-desc">基于 Trie 树和 N-Gram 算法的智能搜索引擎，支持自动补全、模糊匹配，提供快速准确的游戏搜索体验。</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-database"></i></div>
+                <div class="feature-title">分布式会话</div>
+                <div class="feature-desc">使用 Spring Session + Redis 实现分布式会话管理，支持服务器集群部署，会话数据持久化存储。</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-filter"></i></div>
+                <div class="feature-title">分类浏览</div>
+                <div class="feature-desc">支持按游戏分类（冒险、RPG、竞速、解谜等）筛选浏览，动态加载游戏数据，提供流畅的用户体验。</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-history"></i></div>
+                <div class="feature-title">浏览记录</div>
+                <div class="feature-desc">本地存储用户浏览历史，最多保存 20 条记录，支持查看和清空浏览足迹，方便用户回顾感兴趣的游戏。</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-layer-group"></i> 技术栈</h2>
+        <div class="section-content">
+            <p>项目采用现代化的 Java Web 技术栈，结合成熟的开源框架，确保系统的稳定性、性能和可维护性。</p>
+        </div>
+
+        <h3 style="margin-top: 32px; margin-bottom: 16px; color: #a78bfa;">后端技术</h3>
+        <div class="tech-stack">
+            <div class="tech-badge">
+                <i class="fab fa-java"></i>
+                <span>Java 17</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-leaf"></i>
+                <span>Spring Boot 3.x</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Spring Security</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-database"></i>
+                <span>Spring Data JPA</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-server"></i>
+                <span>MySQL 8.0</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-bolt"></i>
+                <span>Redis 7.x</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-project-diagram"></i>
+                <span>Spring Session</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-code"></i>
+                <span>Hibernate ORM</span>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 32px; margin-bottom: 16px; color: #a78bfa;">前端技术</h3>
+        <div class="tech-stack">
+            <div class="tech-badge">
+                <i class="fab fa-html5"></i>
+                <span>HTML5</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fab fa-css3-alt"></i>
+                <span>CSS3</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fab fa-js"></i>
+                <span>JavaScript (ES6+)</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-wind"></i>
+                <span>Font Awesome 6</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fab fa-google"></i>
+                <span>Google Fonts</span>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 32px; margin-bottom: 16px; color: #a78bfa;">开发工具</h3>
+        <div class="tech-stack">
+            <div class="tech-badge">
+                <i class="fas fa-hammer"></i>
+                <span>Maven</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fab fa-git-alt"></i>
+                <span>Git</span>
+            </div>
+            <div class="tech-badge">
+                <i class="fas fa-terminal"></i>
+                <span>IntelliJ IDEA</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-sitemap"></i> 系统架构</h2>
+        <div class="section-content">
+            <p>项目采用经典的三层架构设计，结合 Spring Boot 的自动化配置和约定优于配置的理念，实现了清晰的代码组织和良好的可维护性。</p>
+        </div>
+
+        <div class="architecture-diagram">
+            <div class="diagram-title">请求处理流程</div>
+            <div class="flow-container">
+                <div class="flow-item">
+                    <i class="fas fa-desktop"></i>
+                    <div>浏览器</div>
+                </div>
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="flow-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>Spring Security</div>
+                </div>
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="flow-item">
+                    <i class="fas fa-route"></i>
+                    <div>Controller</div>
+                </div>
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="flow-item">
+                    <i class="fas fa-cogs"></i>
+                    <div>Service</div>
+                </div>
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="flow-item">
+                    <i class="fas fa-database"></i>
+                    <div>Repository</div>
+                </div>
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="flow-item">
+                    <i class="fas fa-server"></i>
+                    <div>MySQL/Redis</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="architecture-diagram" style="margin-top: 20px;">
+            <div class="diagram-title">项目结构</div>
+            <div class="code-block">
+                src/main/java/game/demo/
+                ├── config/              # 配置类（Security、Redis、Web等）
+                ├── controller/          # 控制器层（处理HTTP请求）
+                ├── service/             # 业务逻辑层
+                ├── repository/          # 数据访问层（JPA）
+                ├── entity/              # 实体类（数据库模型）
+                ├── dto/                 # 数据传输对象
+                └── util/                # 工具类（Trie搜索、N-Gram等）
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-key"></i> 关键技术实现</h2>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-title">🔐 密码加密</div>
+                <div class="feature-desc">
+                    使用 BCrypt 强哈希算法对用户密码进行加密存储，确保即使数据库泄露，密码也无法被破解。
+                </div>
+                <div class="code-block">BCryptPasswordEncoder<br>.encode(rawPassword)</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">📦 Session 管理</div>
+                <div class="feature-desc">
+                    Spring Session + Redis 实现分布式会话，User 对象需实现 Serializable 接口以支持序列化存储。
+                </div>
+                <div class="code-block">implements Serializable<br>serialVersionUID = 1L</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">🔍 智能搜索</div>
+                <div class="feature-desc">
+                    基于 Trie 树（前缀树）实现自动补全，N-Gram 算法支持模糊匹配，提供高效的搜索体验。
+                </div>
+                <div class="code-block">TrieNode<br>NGramInvertedIndex</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-title">🛡️ 安全配置</div>
+                <div class="feature-desc">
+                    Spring Security 配置 CSRF 禁用、公开 API 路径放行、表单登录禁用，适配 RESTful API 架构。
+                </div>
+                <div class="code-block">@EnableWebSecurity<br>SecurityFilterChain</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-chart-line"></i> 性能优化</h2>
+        <div class="section-content">
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 16px; padding-left: 28px; position: relative;">
+                    <i class="fas fa-check-circle" style="position: absolute; left: 0; color: #34d399;"></i>
+                    <strong>Redis 缓存：</strong>会话数据和热点数据存储在 Redis 中，减少数据库查询压力
+                </li>
+                <li style="margin-bottom: 16px; padding-left: 28px; position: relative;">
+                    <i class="fas fa-check-circle" style="position: absolute; left: 0; color: #34d399;"></i>
+                    <strong>搜索引擎：</strong>Trie 树和 N-Gram 索引预加载到内存，搜索时间复杂度 O(m)，m 为搜索词长度
+                </li>
+                <li style="margin-bottom: 16px; padding-left: 28px; position: relative;">
+                    <i class="fas fa-check-circle" style="position: absolute; left: 0; color: #34d399;"></i>
+                    <strong>懒加载：</strong>JPA 关联查询采用懒加载策略，避免不必要的数据库查询
+                </li>
+                <li style="margin-bottom: 16px; padding-left: 28px; position: relative;">
+                    <i class="fas fa-check-circle" style="position: absolute; left: 0; color: #34d399;"></i>
+                    <strong>连接池：</strong>使用 HikariCP 数据库连接池，优化数据库连接复用
+                </li>
+                <li style="margin-bottom: 16px; padding-left: 28px; position: relative;">
+                    <i class="fas fa-check-circle" style="position: absolute; left: 0; color: #34d399;"></i>
+                    <strong>异步处理：</strong>前端采用异步 fetch API，非阻塞式数据加载，提升用户体验
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-rocket"></i> 部署与运行</h2>
+        <div class="section-content">
+            <p><strong>环境要求：</strong></p>
+            <ul style="margin-top: 12px; margin-bottom: 24px; padding-left: 24px;">
+                <li>JDK 17 或更高版本</li>
+                <li>MySQL 8.0 数据库</li>
+                <li>Redis 7.x 缓存服务</li>
+                <li>Maven 3.6+ 构建工具</li>
+            </ul>
+
+            <p><strong>启动步骤：</strong></p>
+            <div class="code-block">
+                # 1. 启动 MySQL 和 Redis 服务
+                net start MySQL80
+                net start Redis
+
+                # 2. 配置数据库连接（application.properties）
+                spring.datasource.url=jdbc:mysql://localhost:3306/Game
+                spring.data.redis.host=localhost
+
+                # 3. 编译并运行项目
+                mvn clean install
+                mvn spring-boot:run
+
+                # 4. 访问应用
+                http://localhost:8080/home.html
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-star"></i> 项目亮点</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                <div class="feature-title">智能算法</div>
+                <div class="feature-desc">自主实现的 Trie 树和 N-Gram 搜索引擎，不依赖第三方库，代码简洁高效</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                <div class="feature-title">安全可靠</div>
+                <div class="feature-desc">BCrypt 密码加密、Spring Security 防护、Serializable 会话序列化，多层安全保障</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-expand-arrows-alt"></i></div>
+                <div class="feature-title">可扩展性</div>
+                <div class="feature-desc">分层架构设计、Redis 分布式会话、标准化 REST API，易于水平扩展</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-paint-brush"></i></div>
+                <div class="feature-title">现代 UI</div>
+                <div class="feature-desc">暗色主题设计、渐变色彩搭配、响应式布局、流畅的交互动画</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <p>© 2026 GAMEVILA — 基于 Spring Boot 构建的现代化游戏平台</p>
+        <p style="margin-top: 8px; font-size: 0.9rem;">技术栈：Java 17 · Spring Boot · MySQL · Redis · Spring Security</p>
+    </div>
+</footer>
+
+</body>
+</html>

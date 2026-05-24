@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务订阅 · GAMEVILA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0e14;
+            color: #edf2f7;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            color: #a78bfa;
+        }
+
+        .page-title {
+            text-align: center;
+            padding: 48px 0 32px;
+        }
+
+        .page-title h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .page-title h1 span {
+            background: linear-gradient(135deg, #d8b4fe, #f9a8d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-title p {
+            color: #9ca3af;
+            font-size: 1.1rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .pricing-card {
+            background: #161e2a;
+            border: 1px solid #2a3748;
+            border-radius: 24px;
+            padding: 32px 28px;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border-color: #7c3aed60;
+        }
+
+        .pricing-card.featured {
+            border: 2px solid #a78bfa;
+            background: linear-gradient(145deg, #1a1f2e, #161e2a);
+        }
+
+        .pricing-card.featured::before {
+            content: '🔥 推荐';
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(145deg, #7c3aed, #a855f7);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .pricing-card.lifetime {
+            border: 2px solid #f472b6;
+            background: linear-gradient(145deg, #1e1a28, #161e2a);
+        }
+
+        .pricing-card.lifetime::before {
+            content: '💎 终身';
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(145deg, #ec4899, #f472b6);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .card-header {
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #2d3748;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #a78bfa;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .card-desc {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .price-section {
+            margin: 24px 0;
+            padding: 20px 0;
+            border-top: 1px solid #2a3748;
+            border-bottom: 1px solid #2a3748;
+        }
+
+        .original-price {
+            color: #64748b;
+            font-size: 1rem;
+            text-decoration: line-through;
+            margin-bottom: 4px;
+        }
+
+        .current-price {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .price-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #edf2f7;
+        }
+
+        .price-unit {
+            font-size: 1.2rem;
+            color: #9ca3af;
+        }
+
+        .price-period {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .daily-cost {
+            color: #a78bfa;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .daily-cost i {
+            font-size: 0.75rem;
+        }
+
+        .features-list {
+            margin: 24px 0;
+            list-style: none;
+        }
+
+        .features-list li {
+            padding: 10px 0;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features-list li i {
+            color: #a78bfa;
+            font-size: 0.8rem;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(145deg, #7c3aed, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .buy-btn:hover {
+            background: linear-gradient(145deg, #6d28d9, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.4);
+        }
+
+        .buy-btn.lifetime-btn {
+            background: linear-gradient(145deg, #ec4899, #f472b6);
+        }
+
+        .buy-btn.lifetime-btn:hover {
+            background: linear-gradient(145deg, #db2777, #ec4899);
+            box-shadow: 0 8px 16px rgba(236, 72, 153, 0.4);
+        }
+
+        .buy-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback-section {
+            background: #161e2a;
+            border: 1px solid #2a3748;
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .feedback-section h2 {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .feedback-section p {
+            color: #9ca3af;
+            margin-bottom: 24px;
+        }
+
+        .feedback-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            background: #1e293b;
+            border: 1px solid #7c3aed;
+            border-radius: 12px;
+            color: #a78bfa;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .feedback-link:hover {
+            background: #7c3aed;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            padding: 24px 0;
+            text-align: center;
+            color: #6b7b8f;
+            border-top: 1px solid #1e2a36;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: #00000070;
+            backdrop-filter: blur(3px);
+            z-index: 2000;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        .login-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: #1e2632;
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            border: 1px solid #2d3f54;
+        }
+
+        .login-modal.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .login-modal h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #edf2f7;
+            font-size: 1.8rem;
+        }
+
+        .login-form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .login-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0b0e14;
+            border: 1px solid #2d3f54;
+            border-radius: 12px;
+            color: #edf2f7;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .login-form-group input:focus {
+            outline: none;
+            border-color: #a78bfa;
+        }
+
+        .login-submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(145deg, #7c3aed, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-submit-btn:hover {
+            background: linear-gradient(145deg, #6d28d9, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.4);
+        }
+
+        .login-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-error {
+            color: #f87171;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+
+        .close-login-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .close-login-modal:hover {
+            color: #edf2f7;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .register-link a {
+            color: #a78bfa;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .register-link a:hover {
+            color: #c084fc;
+            text-decoration: underline;
+        }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #2d3f54;
+        }
+
+        .login-divider span {
+            padding: 0 10px;
+        }
+
+        .register-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: #1e2632;
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            border: 1px solid #2d3f54;
+        }
+
+        .register-modal.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .register-modal h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #edf2f7;
+            font-size: 1.8rem;
+        }
+
+        .register-form-group {
+            margin-bottom: 20px;
+        }
+
+        .register-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .register-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0b0e14;
+            border: 1px solid #2d3f54;
+            border-radius: 12px;
+            color: #edf2f7;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .register-form-group input:focus {
+            outline: none;
+            border-color: #a78bfa;
+        }
+
+        .register-submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(145deg, #7c3aed, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .register-submit-btn:hover {
+            background: linear-gradient(145deg, #6d28d9, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.4);
+        }
+
+        .register-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .register-error {
+            color: #f87171;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+
+        .register-success {
+            color: #34d399;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+
+        .close-register-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .close-register-modal:hover {
+            color: #edf2f7;
+        }
+
+        @media (max-width: 768px) {
+            .page-title h1 {
+                font-size: 2rem;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="login-modal" id="loginModal">
+    <button class="close-login-modal" id="closeLoginModal"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-sign-in-alt" style="color: #a78bfa; margin-right: 10px;"></i>用户登录</h2>
+    <form id="loginForm">
+        <div class="login-form-group">
+            <label for="loginUsername"><i class="fas fa-user"></i> 用户名</label>
+            <input type="text" id="loginUsername" name="username" required autocomplete="username">
+        </div>
+        <div class="login-form-group">
+            <label for="loginPassword"><i class="fas fa-lock"></i> 密码</label>
+            <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-submit-btn" id="loginSubmitBtn">
+            <i class="fas fa-spinner fa-spin" style="display: none;" id="loginSpinner"></i>
+            <span id="loginBtnText">登录</span>
+        </button>
+        <div class="login-error" id="loginError"></div>
+        <div class="login-divider"><span>或</span></div>
+        <div class="register-link">
+            还没有账号？<a id="showRegisterFromLogin">立即注册</a>
+        </div>
+    </form>
+</div>
+
+<div class="register-modal" id="registerModal">
+    <button class="close-register-modal" id="closeRegisterModal"><i class="fas fa-times"></i></button>
+    <h2><i class="fas fa-user-plus" style="color: #a78bfa; margin-right: 10px;"></i>用户注册</h2>
+    <form id="registerForm">
+        <div class="register-form-group">
+            <label for="registerUsername"><i class="fas fa-user"></i> 用户名</label>
+            <input type="text" id="registerUsername" name="username" required autocomplete="username" minlength="3" maxlength="20">
+        </div>
+        <div class="register-form-group">
+            <label for="registerEmail"><i class="fas fa-envelope"></i> 邮箱（可选）</label>
+            <input type="email" id="registerEmail" name="email" autocomplete="email">
+        </div>
+        <div class="register-form-group">
+            <label for="registerPassword"><i class="fas fa-lock"></i> 密码</label>
+            <input type="password" id="registerPassword" name="password" required autocomplete="new-password" minlength="6">
+        </div>
+        <div class="register-form-group">
+            <label for="registerConfirmPassword"><i class="fas fa-check-circle"></i> 确认密码</label>
+            <input type="password" id="registerConfirmPassword" name="confirmPassword" required autocomplete="new-password" minlength="6">
+        </div>
+        <button type="submit" class="register-submit-btn" id="registerSubmitBtn">
+            <i class="fas fa-spinner fa-spin" style="display: none;" id="registerSpinner"></i>
+            <span id="registerBtnText">注册</span>
+        </button>
+        <div class="register-error" id="registerError"></div>
+        <div class="register-success" id="registerSuccess"></div>
+        <div class="login-divider"><span>或</span></div>
+        <div class="register-link">
+            已有账号？<a id="showLoginFromRegister">立即登录</a>
+        </div>
+    </form>
+</div>
+
+<div class="container">
+    <header class="header">
+        <div class="logo" onclick="window.location.href='/'"><i class="fas fa-gamepad" style="margin-right: 6px; color: #c084fc;"></i>GAMEVILA</div>
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+    </header>
+
+    <div class="page-title">
+        <h1>选择你的<span>服务方案</span></h1>
+        <p>解锁全部游戏，享受无限畅玩体验</p>
+    </div>
+
+    <div class="pricing-grid">
+        <div class="pricing-card" data-plan="monthly">
+            <div class="card-header">
+                <div class="card-title">月度会员</div>
+                <div class="card-badge">灵活订阅</div>
+                <div class="card-desc">适合短期体验，按月付费，随时取消</div>
+            </div>
+            <div class="price-section">
+                <div class="original-price">¥10.00</div>
+                <div class="current-price">
+                    <span class="price-amount">5</span>
+                    <span class="price-unit">元人民币</span>
+                </div>
+                <div class="price-period">/月</div>
+                <div class="daily-cost">
+                    <i class="fas fa-info-circle"></i>
+                    平均每天 ¥0.17
+                </div>
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-check"></i> 全部游戏畅玩</li>
+                <li><i class="fas fa-check"></i> 无广告体验</li>
+                <li><i class="fas fa-check"></i> 优先客服支持</li>
+                <li><i class="fas fa-check"></i> 每月新游优先体验</li>
+            </ul>
+            <button class="buy-btn" onclick="handlePurchase('monthly', 5)">立即购买</button>
+        </div>
+
+        <div class="pricing-card featured" data-plan="quarterly">
+            <div class="card-header">
+                <div class="card-title">季度会员</div>
+                <div class="card-badge">超值之选</div>
+                <div class="card-desc">三个月订阅，享受更多折扣优惠</div>
+            </div>
+            <div class="price-section">
+                <div class="original-price">¥30</div>
+                <div class="current-price">
+                    <span class="price-amount">9</span>
+                    <span class="price-unit">元人民币</span>
+                </div>
+                <div class="price-period">/3个月</div>
+                <div class="daily-cost">
+                    <i class="fas fa-info-circle"></i>
+                    平均每天 ¥0.1
+                </div>
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-check"></i> 全部游戏畅玩</li>
+                <li><i class="fas fa-check"></i> 无广告体验</li>
+                <li><i class="fas fa-check"></i> 优先客服支持</li>
+                <li><i class="fas fa-check"></i> 每月新游优先体验</li>
+                <li><i class="fas fa-check"></i> 专属游戏礼包</li>
+            </ul>
+            <button class="buy-btn" onclick="handlePurchase('quarterly', 9)">立即购买</button>
+        </div>
+
+        <div class="pricing-card" data-plan="yearly">
+            <div class="card-header">
+                <div class="card-title">年度会员</div>
+                <div class="card-badge">年度特惠</div>
+                <div class="card-desc">一年订阅，最大幅度优惠，性价比最高</div>
+            </div>
+            <div class="price-section">
+                <div class="original-price">¥120.00</div>
+                <div class="current-price">
+                    <span class="price-amount">36</span>
+                    <span class="price-unit">元人民币</span>
+                </div>
+                <div class="price-period">/年</div>
+                <div class="daily-cost">
+                    <i class="fas fa-info-circle"></i>
+                    平均每天 ¥0.82
+                </div>
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-check"></i> 全部游戏畅玩</li>
+                <li><i class="fas fa-check"></i> 无广告体验</li>
+                <li><i class="fas fa-check"></i> 优先客服支持</li>
+                <li><i class="fas fa-check"></i> 每月新游优先体验</li>
+                <li><i class="fas fa-check"></i> 专属游戏礼包</li>
+                <li><i class="fas fa-check"></i> 限定游戏皮肤</li>
+            </ul>
+            <button class="buy-btn" onclick="handlePurchase('yearly', 36)">立即购买</button>
+        </div>
+
+        <div class="pricing-card lifetime" data-plan="lifetime">
+            <div class="card-header">
+                <div class="card-title">终身会员</div>
+                <div class="card-badge">一次付费</div>
+                <div class="card-desc">永久访问权，一次购买终身受益</div>
+            </div>
+            <div class="price-section">
+                <div class="original-price">¥1999.00</div>
+                <div class="current-price">
+                    <span class="price-amount">100</span>
+                    <span class="price-unit">元人民币</span>
+                </div>
+                <div class="price-period">/终身</div>
+                <div class="daily-cost">
+                    <i class="fas fa-info-circle"></i>
+                    平均每天不到 ¥0.10（按3年计算）
+                </div>
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-check"></i> 全部游戏永久畅玩</li>
+                <li><i class="fas fa-check"></i> 无广告体验</li>
+                <li><i class="fas fa-check"></i> VIP专属客服</li>
+                <li><i class="fas fa-check"></i> 所有新游免费体验</li>
+                <li><i class="fas fa-check"></i> 专属游戏礼包</li>
+                <li><i class="fas fa-check"></i> 限定游戏皮肤</li>
+                <li><i class="fas fa-check"></i> 内测资格优先获取</li>
+            </ul>
+            <button class="buy-btn lifetime-btn" onclick="handlePurchase('lifetime', 100)">立即购买</button>
+        </div>
+    </div>
+
+    <div class="feedback-section">
+        <h2><i class="fas fa-headset" style="color: #a78bfa;"></i> 遇到问题或需要帮助？</h2>
+        <p>如果您在使用过程中遇到任何问题，或对我们的服务有任何建议和投诉，欢迎随时联系我们</p>
+        <a href="mailto:support@gamevila.com" class="feedback-link">
+            <i class="fas fa-envelope"></i>
+            提交反馈或投诉
+        </a>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <p>© 2026 GAMEVILA — 随心畅玩</p>
+    </div>
+</footer>
+
+<script>
+    (function() {
+        "use strict";
+
+        let isLoggedIn = false;
+        let currentUser = null;
+
+        const overlay = document.getElementById('overlay');
+        const loginModal = document.getElementById('loginModal');
+        const closeLoginModalBtn = document.getElementById('closeLoginModal');
+        const loginForm = document.getElementById('loginForm');
+        const loginUsernameInput = document.getElementById('loginUsername');
+        const loginPasswordInput = document.getElementById('loginPassword');
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const loginError = document.getElementById('loginError');
+
+        const registerModal = document.getElementById('registerModal');
+        const closeRegisterModalBtn = document.getElementById('closeRegisterModal');
+        const registerForm = document.getElementById('registerForm');
+        const registerUsernameInput = document.getElementById('registerUsername');
+        const registerEmailInput = document.getElementById('registerEmail');
+        const registerPasswordInput = document.getElementById('registerPassword');
+        const registerConfirmPasswordInput = document.getElementById('registerConfirmPassword');
+        const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+        const registerSpinner = document.getElementById('registerSpinner');
+        const registerBtnText = document.getElementById('registerBtnText');
+        const registerError = document.getElementById('registerError');
+        const registerSuccess = document.getElementById('registerSuccess');
+
+        const showRegisterFromLogin = document.getElementById('showRegisterFromLogin');
+        const showLoginFromRegister = document.getElementById('showLoginFromRegister');
+
+        if (showRegisterFromLogin) {
+            showRegisterFromLogin.addEventListener('click', () => {
+                closeLoginModal();
+                setTimeout(() => openRegisterModal(), 100);
+            });
+        }
+
+        if (showLoginFromRegister) {
+            showLoginFromRegister.addEventListener('click', () => {
+                closeRegisterModal();
+                setTimeout(() => openLoginModal(), 100);
+            });
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/check-login', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+
+                if (data.loggedIn) {
+                    isLoggedIn = true;
+                    currentUser = data.username;
+                    console.log('✅ 用户已登录:', currentUser);
+                } else {
+                    isLoggedIn = false;
+                    currentUser = null;
+                    console.log('⚠️ 用户未登录');
+                }
+            } catch (error) {
+                console.error('检查登录状态失败:', error);
+                isLoggedIn = false;
+                currentUser = null;
+            }
+        }
+
+        // ... existing code ...
+
+
+
+        function openLoginModal() {
+            loginModal.classList.add('show');
+            overlay.classList.add('show');
+            loginUsernameInput.value = '';
+            loginPasswordInput.value = '';
+            loginError.textContent = '';
+            setTimeout(() => loginUsernameInput.focus(), 100);
+        }
+
+        function closeLoginModal() {
+            loginModal.classList.remove('show');
+            overlay.classList.remove('show');
+            loginForm.reset();
+            loginError.textContent = '';
+        }
+
+        function openRegisterModal() {
+            registerModal.classList.add('show');
+            overlay.classList.add('show');
+            registerUsernameInput.value = '';
+            registerEmailInput.value = '';
+            registerPasswordInput.value = '';
+            registerConfirmPasswordInput.value = '';
+            registerError.textContent = '';
+            registerSuccess.textContent = '';
+            setTimeout(() => registerUsernameInput.focus(), 100);
+        }
+
+        function closeRegisterModal() {
+            registerModal.classList.remove('show');
+            overlay.classList.remove('show');
+            registerForm.reset();
+            registerError.textContent = '';
+            registerSuccess.textContent = '';
+        }
+
+        function showTemporaryMessage(msg) {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.position = 'fixed';
+            toast.style.bottom = '30px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.background = '#1e293b';
+            toast.style.color = '#f1f5f9';
+            toast.style.padding = '12px 24px';
+            toast.style.borderRadius = '60px';
+            toast.style.boxShadow = '0 12px 20px #00000050';
+            toast.style.zIndex = '9999';
+            toast.style.border = '1px solid #7c3aed';
+            toast.style.fontWeight = '500';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        async function handleLogin(username, password) {
+            loginSubmitBtn.disabled = true;
+            loginSpinner.style.display = 'inline-block';
+            loginBtnText.textContent = '登录中...';
+            loginError.textContent = '';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    isLoggedIn = true;
+                    currentUser = data.username;
+                    // ❌ 删除了 localStorage.setItem('sessionId', data.sessionId);
+                    // ❌ 删除了 console.log('✅ SessionId 已保存:', data.sessionId);
+
+                    closeLoginModal();
+                    showTemporaryMessage(`登录成功！欢迎 ${data.username}`);
+                    console.log('✅ 登录成功，用户:', currentUser);
+                } else {
+                    loginError.textContent = data.message || '登录失败';
+                    console.log('❌ 登录失败:', data.message);
+                }
+
+            } catch (error) {
+                console.error('❗ 登录错误:', error);
+                loginError.textContent = '网络错误，请稍后重试';
+            } finally {
+                loginSubmitBtn.disabled = false;
+                loginSpinner.style.display = 'none';
+                loginBtnText.textContent = '登录';
+            }
+        }
+
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = loginUsernameInput.value.trim();
+            const password = loginPasswordInput.value;
+
+            if (!username || !password) {
+                loginError.textContent = '请输入用户名和密码';
+                return;
+            }
+
+            await handleLogin(username, password);
+        });
+
+        closeLoginModalBtn.addEventListener('click', closeLoginModal);
+
+        overlay.addEventListener('click', () => {
+            closeLoginModal();
+            closeRegisterModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLoginModal();
+                closeRegisterModal();
+            }
+        });
+
+        closeRegisterModalBtn.addEventListener('click', closeRegisterModal);
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = registerUsernameInput.value.trim();
+            const email = registerEmailInput.value.trim();
+            const password = registerPasswordInput.value;
+            const confirmPassword = registerConfirmPasswordInput.value;
+
+            if (!username || !password || !confirmPassword) {
+                registerError.textContent = '请填写所有必填字段';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                registerError.textContent = '两次输入的密码不一致';
+                return;
+            }
+
+            if (password.length < 6) {
+                registerError.textContent = '密码长度至少为6位';
+                return;
+            }
+
+            registerSubmitBtn.disabled = true;
+            registerSpinner.style.display = 'inline-block';
+            registerBtnText.textContent = '注册中...';
+            registerError.textContent = '';
+            registerSuccess.textContent = '';
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    registerSuccess.textContent = '注册成功！即将自动登录...';
+                    setTimeout(async () => {
+                        await handleLogin(username, password);
+                        closeRegisterModal();
+                    }, 1500);
+                } else {
+                    registerError.textContent = data.message || '注册失败';
+                }
+            } catch (error) {
+                console.error('❗ 注册错误:', error);
+                registerError.textContent = '网络错误，请稍后重试';
+            } finally {
+                registerSubmitBtn.disabled = false;
+                registerSpinner.style.display = 'none';
+                registerBtnText.textContent = '注册';
+            }
+        });
+
+        window.handlePurchase = async function(plan, amount) {
+            // ❌ 删除了 const sessionId = localStorage.getItem('sessionId');
+
+            if (!isLoggedIn || !currentUser) {
+                console.log('⚠️ 购买时检测到未登录，打开登录窗口');
+                openLoginModal();
+                return;
+            }
+
+            const planNames = {
+                'monthly': '月度',
+                'quarterly': '季度',
+                'yearly': '年度',
+                'lifetime': '终身'
+            };
+
+            if (!confirm(`确认购买${planNames[plan]}会员，支付 ¥${amount}？`)) {
+                return;
+            }
+
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                    // ❌ 删除了 'X-Session-Id': sessionId
+                };
+
+                const response = await fetch('/api/purchase', {
+                    method: 'POST',
+                    headers: headers,
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        plan: plan,
+                        amount: amount
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showTemporaryMessage('购买成功！您已获得VIP权限');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    if (response.status === 401) {
+                        // ❌ 删除了 localStorage.removeItem('sessionId');
+                        alert('会话已过期，请重新登录');
+                        openLoginModal();
+                    } else {
+                        alert(data.message || '购买失败，请重试');
+                    }
+                }
+            } catch (error) {
+                console.error('❗ 购买错误:', error);
+                alert('网络错误，请稍后重试');
+            }
+        };
+
+
+        checkLoginStatus();
+    })();
+
+
+</script>
+
+
+</body>
+</html>
