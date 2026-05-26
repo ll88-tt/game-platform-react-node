@@ -442,7 +442,7 @@ function openLoginModal() {
 async function handleLogout() {
   await userStore.logout()
   showDropdown.value = false
-  alert('已退出登录')
+  //alert('已退出登录')
 }
 
 function goToAdminPanel() {

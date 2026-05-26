@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '../stores/user'
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import ServiceView from '../views/ServiceView.vue'
@@ -6,6 +7,7 @@ import ContactView from '../views/ContactView.vue'
 import AdminFeedbackView from '../views/AdminFeedbackView.vue'
 
 const routes = [
+
     {
         path: '/',
         name: 'home',
@@ -13,12 +15,12 @@ const routes = [
     },
     {
         path: '/home',
-        name: 'home',
+        name: 'home-page',
         component: HomeView
     },
     {
         path: '/about',
-        name: 'about',
+        name: 'about',   // 改成唯一名称 Vue Router 4 中，路由的 name 必须是唯一的
         component: AboutView
     },
     {

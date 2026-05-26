@@ -93,7 +93,7 @@
             <i class="fab fa-qq"></i>
           </div>
           <h3>QQ</h3>
-          <p class="method-value">123456789</p>
+          <p class="method-value">3531316256</p>
           <p class="method-desc">工作日 9:00-18:00 在线</p>
           <a href="tencent://message/?uin=123456789" class="contact-link">
             <i class="fas fa-comments"></i> 发起会话
@@ -105,7 +105,7 @@
             <i class="fab fa-weixin"></i>
           </div>
           <h3>微信</h3>
-          <p class="method-value">gamevila_official</p>
+          <p class="method-value">F13692004TN</p>
           <p class="method-desc">扫码添加客服微信</p>
           <div class="qr-code-placeholder">
             <i class="fas fa-qrcode"></i>
@@ -118,7 +118,7 @@
             <i class="fas fa-phone-alt"></i>
           </div>
           <h3>电话</h3>
-          <p class="method-value">400-123-4567</p>
+          <p class="method-value">134-2207-0336</p>
           <p class="method-desc">周一至周五 9:00-18:00</p>
           <a href="tel:400-123-4567" class="contact-link">
             <i class="fas fa-phone"></i> 立即拨打
@@ -130,7 +130,7 @@
             <i class="fas fa-envelope"></i>
           </div>
           <h3>邮箱</h3>
-          <p class="method-value">support@gamevila.com</p>
+          <p class="method-value">3531316256@qq.com</p>
           <p class="method-desc">24小时内回复</p>
           <a href="mailto:support@gamevila.com" class="contact-link">
             <i class="fas fa-paper-plane"></i> 发送邮件
@@ -342,7 +342,7 @@ function openLoginModal() {
 async function handleLogout() {
   await userStore.logout()
   showDropdown.value = false
-  alert('已退出登录')
+  //alert('已退出登录')
 }
 
 function goToAdminPanel() {

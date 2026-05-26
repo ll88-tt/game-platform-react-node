@@ -531,7 +531,7 @@ async function handleLogin() {
 
   if (result.success) {
     closeLoginModal()
-    alert(`登录成功！欢迎 ${userStore.currentUser}`)
+    //alert(`登录成功！欢迎 ${userStore.currentUser}`)
   } else {
     loginError.value = result.message || '登录失败'
   }
@@ -591,7 +591,7 @@ async function handleRegister() {
     if (response.ok && data.success) {
       await userStore.checkLoginStatus()
       closeRegisterModal()
-      alert(`注册成功！欢迎 ${data.username}`)
+      //alert(`注册成功！欢迎 ${data.username}`)
     } else {
       registerError.value = data.message || '注册失败'
     }

@@ -24,3 +24,6 @@ public class GameApplication {
 //以管理员身份打开 PowerShell
 //mysql -u myuser -p
 //切换到 Game 数据库 USE Game;
+//Vue
+//GameApplication.java 就是 Spring Boot 后端！
+// cd D:\FW\Game\frontend 运行 npm run dev（Vite 前端开发服务器）
