@@ -30,7 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/payment/**", "/api/purchase").permitAll()
                         .requestMatchers("/api/subscription", "/api/orders").permitAll()
                         .requestMatchers("/api/admin/**").permitAll()
-                        .requestMatchers("/","/admin-feedback.html","/contact.html","/about.html", "home.html", "/index.html", "/about", "/service", "/subscription", "/user-center", "/contact", "/admin-feedback", "/assets/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/","/index.html", "/home", "/about", "/service", "/subscription", "/user-center", "/contact", "/admin-dashboard", "/admin-games", "/admin-feedback", "/assets/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )

@@ -1,6 +1,5 @@
 <template>
   <div class="about-container">
-    <!-- 导航栏 -->
     <header class="header">
       <div class="logo">
         <i class="fas fa-gamepad" style="margin-right: 6px; color: #c084fc;"></i>
@@ -13,490 +12,196 @@
         <router-link to="/service">服务</router-link>
         <router-link to="/contact">联系</router-link>
 
-        <router-link
-            v-if="userStore.isAdmin"
-            to="/admin-feedback"
-            class="admin-btn"
-        >
-          <i class="fas fa-inbox"></i> 查看反馈 <i class="fas fa-arrow-right"></i>
+        <router-link v-if="userStore.isAdmin" to="/admin-dashboard" class="admin-btn dashboard-btn">
+          <i class="fas fa-chart-pie"></i> 仪表盘
+        </router-link>
+        <router-link v-if="userStore.isAdmin" to="/admin-games" class="admin-btn games-admin-btn">
+          <i class="fas fa-database"></i> 游戏管理
         </router-link>
 
         <router-link to="/service" class="buy-now">
-          订阅VIP <i class="fas fa-arrow-right"></i>
+          订阅 VIP <i class="fas fa-arrow-right"></i>
         </router-link>
       </nav>
 
       <UserAvatarMenu
-          :show-admin-dashboard="userStore.isAdmin"
-          :show-admin-games="userStore.isAdmin"
-          :show-admin-feedback="userStore.isAdmin"
-          show-browse-history
-          @login="openLoginModal"
-          @browse-history="openHistoryPanel"
+        :show-admin-dashboard="userStore.isAdmin"
+        :show-admin-games="userStore.isAdmin"
+        :show-admin-feedback="userStore.isAdmin"
+        show-browse-history
+        @login="goToHomeLogin"
+        @browse-history="openHistoryPanel"
       />
     </header>
 
-    <!-- 页面标题 -->
-    <section class="page-hero">
-      <h1 class="page-title">
-        <i class="fas fa-info-circle"></i> 关于 GAMEVILA
-      </h1>
-      <p class="page-subtitle">从 HTML+JS 到 Vue 3 的技术演进之路</p>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-badge"><i class="fas fa-sparkles"></i> Perfect Version · Vue 3 全栈实践</div>
+      <h1 class="hero-title">关于 <span>GAMEVILA</span></h1>
+      <p class="hero-desc">
+        一个从 HTML 原型演进到 Vue 3 + Spring Boot 的现代化游戏平台。
+        涵盖智能搜索、VIP 订阅、用户中心、管理后台与云端数据同步的完整业务闭环。
+      </p>
+      <div class="hero-actions">
+        <a href="http://120.79.160.66" target="_blank" rel="noopener" class="btn-primary">
+          <i class="fas fa-globe"></i> 在线体验
+        </a>
+        <a
+          href="https://github.com/ll88-tt/game-platform-react-node"
+          target="_blank"
+          rel="noopener"
+          class="btn-secondary"
+        >
+          <i class="fab fa-github"></i> GitHub 仓库
+        </a>
+      </div>
     </section>
 
-    <!-- 项目简介 -->
-    <section class="content-section">
-      <div class="section-header">
-        <h2><i class="fas fa-project-diagram"></i> 项目简介</h2>
-      </div>
-
-      <div class="content-card">
-        <p>
-          GAMEVILA 是一个现代化的游戏平台，提供游戏浏览、搜索、分类筛选等功能。
-          平台采用前后端分离架构，支持用户注册登录、VIP订阅系统、管理员权限管理等完整功能。
-        </p>
-
-        <div class="feature-grid">
-          <div class="feature-item">
-            <i class="fas fa-search"></i>
-            <h3>智能搜索</h3>
-            <p>基于 Trie 树和 N-Gram 算法的智能搜索引擎</p>
-          </div>
-
-          <div class="feature-item">
-            <i class="fas fa-crown"></i>
-            <h3>VIP 系统</h3>
-            <p>多层级会员体系，支持月度/季度/年度/终身订阅</p>
-          </div>
-
-          <div class="feature-item">
-            <i class="fas fa-shield-alt"></i>
-            <h3>权限管理</h3>
-            <p>完善的用户权限控制和管理员后台</p>
-          </div>
-
-          <div class="feature-item">
-            <i class="fas fa-database"></i>
-            <h3>会话管理</h3>
-            <p>基于 Redis 的分布式 Session 管理</p>
-          </div>
+    <!-- 数据概览 -->
+    <section class="stats-row">
+      <div v-for="stat in stats" :key="stat.label" class="stat-card">
+        <i :class="stat.icon"></i>
+        <div>
+          <strong>{{ stat.value }}</strong>
+          <span>{{ stat.label }}</span>
         </div>
       </div>
     </section>
 
-    <!-- 技术演进历程 -->
+    <!-- 平台能力 -->
     <section class="content-section">
       <div class="section-header">
-        <h2><i class="fas fa-code-branch"></i> 技术演进历程</h2>
+        <h2><i class="fas fa-th-large"></i> 平台能力</h2>
+        <p>当前 perfect 版本已实现的核心模块</p>
       </div>
 
-      <div class="timeline">
-        <!-- 第一阶段：HTML + JS -->
-        <div class="timeline-item">
-          <div class="timeline-marker phase-1">
-            <i class="fas fa-flag"></i>
+      <div class="capability-grid">
+        <article v-for="item in capabilities" :key="item.title" class="capability-card">
+          <div class="capability-icon" :class="item.tone">
+            <i :class="item.icon"></i>
           </div>
-          <div class="timeline-content">
-            <div class="timeline-header">
-              <h3>第一阶段：传统 HTML + JavaScript</h3>
-              <span class="timeline-date">项目初期</span>
-            </div>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.desc }}</p>
+          <ul>
+            <li v-for="point in item.points" :key="point">{{ point }}</li>
+          </ul>
+        </article>
+      </div>
+    </section>
 
-            <div class="tech-stack">
-              <div class="tech-category">
-                <h4>前端技术</h4>
-                <div class="tech-tags">
-                  <span class="tech-tag">HTML5</span>
-                  <span class="tech-tag">CSS3</span>
-                  <span class="tech-tag">原生 JavaScript (ES6+)</span>
-                  <span class="tech-tag">Font Awesome</span>
-                  <span class="tech-tag">Google Fonts</span>
-                </div>
-              </div>
+    <!-- 技术演进 -->
+    <section class="content-section">
+      <div class="section-header">
+        <h2><i class="fas fa-code-branch"></i> 技术演进</h2>
+        <p>从快速原型到工程化全栈平台的三个阶段</p>
+      </div>
 
-              <div class="tech-category">
-                <h4>后端技术</h4>
-                <div class="tech-tags">
-                  <span class="tech-tag">Spring Boot 3.x</span>
-                  <span class="tech-tag">Spring Security</span>
-                  <span class="tech-tag">Spring Data JPA</span>
-                  <span class="tech-tag">MySQL 8.0</span>
-                  <span class="tech-tag">Redis</span>
-                  <span class="tech-tag">BCrypt</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="phase-description">
-              <p><strong>特点与局限：</strong></p>
-              <ul>
-                <li>✅ 快速原型开发，适合学习阶段</li>
-                <li>✅ 简单直接，无需额外构建工具</li>
-                <li>❌ 代码复用性差，大量重复 HTML/CSS/JS</li>
-                <li>❌ 状态管理困难，依赖 localStorage 和全局变量</li>
-                <li>❌ 路由需要手动处理，不支持 SPA</li>
-                <li>❌ 组件化程度低，维护成本高</li>
-              </ul>
-            </div>
+      <div class="evolution-grid">
+        <article v-for="phase in phases" :key="phase.title" class="phase-card" :class="phase.tone">
+          <div class="phase-head">
+            <span class="phase-label">{{ phase.label }}</span>
+            <h3>{{ phase.title }}</h3>
           </div>
+          <div class="phase-tags">
+            <span v-for="tag in phase.tags" :key="tag">{{ tag }}</span>
+          </div>
+          <ul>
+            <li v-for="line in phase.lines" :key="line">{{ line }}</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- 架构设计 -->
+    <section class="content-section">
+      <div class="section-header">
+        <h2><i class="fas fa-sitemap"></i> 架构设计</h2>
+        <p>前后端分离 + Redis Session + MySQL 持久化</p>
+      </div>
+
+      <div class="arch-flow">
+        <div class="arch-node frontend">Vue 3 SPA<br><small>Router · Pinia · Axios</small></div>
+        <div class="arch-arrow"><i class="fas fa-arrows-alt-h"></i></div>
+        <div class="arch-node backend">Spring Boot API<br><small>Security · JPA · Scheduled</small></div>
+        <div class="arch-arrow"><i class="fas fa-arrows-alt-h"></i></div>
+        <div class="arch-node data">MySQL + Redis<br><small>业务数据 · Session</small></div>
+      </div>
+
+      <div class="design-notes">
+        <div class="note-card">
+          <h4><i class="fas fa-bolt"></i> Session 与状态</h4>
+          <p>登录态存入 Redis，减轻 MySQL 压力，支持分布式部署与服务重启后会话恢复。</p>
         </div>
-
-        <!-- 第二阶段：Vue 3 -->
-        <div class="timeline-item">
-          <div class="timeline-marker phase-2">
-            <i class="fas fa-rocket"></i>
-          </div>
-          <div class="timeline-content">
-            <div class="timeline-header">
-              <h3>第二阶段：Vue 3 + Vite 现代化重构</h3>
-              <span class="timeline-date">当前阶段</span>
-            </div>
-
-            <div class="tech-stack">
-              <div class="tech-category">
-                <h4>前端技术栈升级</h4>
-                <div class="tech-tags">
-                  <span class="tech-tag vue">Vue 3 (Composition API)</span>
-                  <span class="tech-tag vite">Vite 5.x</span>
-                  <span class="tech-tag">Vue Router 4</span>
-                  <span class="tech-tag">Pinia</span>
-                  <span class="tech-tag">Axios</span>
-                  <span class="tech-tag">Scoped CSS</span>
-                </div>
-              </div>
-
-              <div class="tech-category">
-                <h4>后端保持不变</h4>
-                <div class="tech-tags">
-                  <span class="tech-tag">Spring Boot 3.x</span>
-                  <span class="tech-tag">RESTful API</span>
-                  <span class="tech-tag">自定义过滤器</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="phase-description">
-              <p><strong>核心优势：</strong></p>
-              <ul>
-                <li>✅ <strong>组件化开发</strong>：高复用性，易于维护</li>
-                <li>✅ <strong>响应式数据</strong>：自动追踪依赖，视图自动更新</li>
-                <li>✅ <strong>状态管理</strong>：Pinia 统一管理应用状态</li>
-                <li>✅ <strong>路由系统</strong>：Vue Router 支持 SPA 和路由守卫</li>
-                <li>✅ <strong>开发体验</strong>：Vite 热更新，秒级启动</li>
-                <li>✅ <strong>生态完善</strong>：丰富的插件和组件库</li>
-              </ul>
-            </div>
-          </div>
+        <div class="note-card">
+          <h4><i class="fas fa-cloud"></i> 个人数据云端化</h4>
+          <p>收藏与浏览历史写入数据库，登录后跨设备同步；未登录时浏览记录暂存本地，登录自动合并。</p>
         </div>
+        <div class="note-card">
+          <h4><i class="fas fa-clock"></i> VIP 生命周期</h4>
+          <p>订阅支付写入订单表，定时任务每小时扫描到期 VIP 并自动降级，登录时即时校验权限。</p>
+        </div>
+      </div>
+    </section>
 
-        <!-- 第三阶段：Git + GitHub -->
-        <div class="timeline-item">
-          <div class="timeline-marker phase-3">
-            <i class="fas fa-cloud-upload-alt"></i>
-          </div>
-          <div class="timeline-content">
-            <div class="timeline-header">
-              <h3>第三阶段：版本控制与开源协作</h3>
-              <span class="timeline-date">即将实施</span>
-            </div>
+    <!-- 技术栈 -->
+    <section class="content-section">
+      <div class="section-header">
+        <h2><i class="fas fa-layer-group"></i> 技术栈</h2>
+      </div>
 
-            <div class="tech-stack">
-              <div class="tech-category">
-                <h4>版本控制工具</h4>
-                <div class="tech-tags">
-                  <span class="tech-tag git">Git</span>
-                  <span class="tech-tag github">GitHub</span>
-                  <span class="tech-tag">Semantic Versioning</span>
-                  <span class="tech-tag">Conventional Commits</span>
-                </div>
-              </div>
-
-              <div class="tech-category">
-                <h4>CI/CD（可选扩展）</h4>
-                <div class="tech-tags">
-                  <span class="tech-tag">GitHub Actions</span>
-                  <span class="tech-tag">Automated Testing</span>
-                  <span class="tech-tag">Auto Deploy</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="phase-description">
-              <p><strong>计划内容：</strong></p>
-              <ul>
-                <li>📦 <strong>Git 版本控制</strong>：提交历史、分支管理、标签发布</li>
-                <li>🌐 <strong>GitHub 托管</strong>：代码开源、Issue 跟踪、PR 协作</li>
-                <li>📝 <strong>规范化提交</strong>：feat/fix/docs/style/refactor 等类型</li>
-                <li>🏷️ <strong>版本标签</strong>：v1.0.0、v1.1.0、v2.0.0 等语义化版本</li>
-                <li>🤖 <strong>自动化流程</strong>：自动测试、自动部署、Code Review</li>
-              </ul>
-            </div>
+      <div class="stack-grid">
+        <div v-for="stack in techStacks" :key="stack.title" class="stack-card">
+          <h3><i :class="stack.icon"></i> {{ stack.title }}</h3>
+          <div class="stack-items">
+            <span v-for="item in stack.items" :key="item">{{ item }}</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 完整技术栈 -->
+    <!-- 页面地图 -->
     <section class="content-section">
       <div class="section-header">
-        <h2><i class="fas fa-layer-group"></i> 完整技术栈</h2>
+        <h2><i class="fas fa-map"></i> 站点地图</h2>
       </div>
 
-      <div class="tech-grid">
-        <div class="tech-card">
-          <div class="tech-card-header frontend">
-            <i class="fas fa-laptop-code"></i>
-            <h3>前端</h3>
+      <div class="route-grid">
+        <router-link v-for="route in siteRoutes" :key="route.path" :to="route.path" class="route-card">
+          <i :class="route.icon"></i>
+          <div>
+            <strong>{{ route.name }}</strong>
+            <span>{{ route.path }}</span>
           </div>
-          <div class="tech-card-body">
-            <div class="tech-list">
-              <div class="tech-item">
-                <span class="tech-name">Vue 3</span>
-                <span class="tech-desc">渐进式 JavaScript 框架</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Vite</span>
-                <span class="tech-desc">下一代前端构建工具</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Vue Router</span>
-                <span class="tech-desc">官方路由管理器</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Pinia</span>
-                <span class="tech-desc">Vue 状态管理库</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Axios</span>
-                <span class="tech-desc">HTTP 客户端</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tech-card">
-          <div class="tech-card-header backend">
-            <i class="fas fa-server"></i>
-            <h3>后端</h3>
-          </div>
-          <div class="tech-card-body">
-            <div class="tech-list">
-              <div class="tech-item">
-                <span class="tech-name">Spring Boot 3.x</span>
-                <span class="tech-desc">Java Web 框架</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Spring Security</span>
-                <span class="tech-desc">安全认证</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Spring Data JPA</span>
-                <span class="tech-desc">数据持久层</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Hibernate</span>
-                <span class="tech-desc">ORM 框架</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">BCrypt</span>
-                <span class="tech-desc">密码加密</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tech-card">
-          <div class="tech-card-header database">
-            <i class="fas fa-database"></i>
-            <h3>数据库</h3>
-          </div>
-          <div class="tech-card-body">
-            <div class="tech-list">
-              <div class="tech-item">
-                <span class="tech-name">MySQL 8.0</span>
-                <span class="tech-desc">关系型数据库</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Redis</span>
-                <span class="tech-desc">Session 存储</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Spring Session</span>
-                <span class="tech-desc">分布式会话</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tech-card">
-          <div class="tech-card-header tools">
-            <i class="fas fa-tools"></i>
-            <h3>开发工具</h3>
-          </div>
-          <div class="tech-card-body">
-            <div class="tech-list">
-              <div class="tech-item">
-                <span class="tech-name">Maven</span>
-                <span class="tech-desc">Java 构建工具</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">npm</span>
-                <span class="tech-desc">Node 包管理器</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">JDK 17</span>
-                <span class="tech-desc">Java 开发环境</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Node.js 20.x</span>
-                <span class="tech-desc">JS 运行时</span>
-              </div>
-              <div class="tech-item">
-                <span class="tech-name">Git</span>
-                <span class="tech-desc">版本控制</span>
-              </div>
-            </div>
-          </div>
-        </div>
+          <span v-if="route.badge" class="route-badge">{{ route.badge }}</span>
+        </router-link>
       </div>
     </section>
 
-    <!-- Git & GitHub 计划 -->
-    <section class="content-section">
-      <div class="section-header">
-        <h2><i class="fab fa-github"></i> Git & GitHub 计划</h2>
-      </div>
-
-      <div class="github-plan">
-        <div class="plan-step">
-          <div class="step-number">1</div>
-          <div class="step-content">
-            <h3>初始化 Git 仓库</h3>
-            <pre class="code-block"><code># 在项目根目录初始化 Git
-cd D:\FW\Game
-git init
-
-# 创建 .gitignore 文件
-# 忽略 node_modules、target、日志等</code></pre>
+    <!-- 关于作者 -->
+    <section class="author-section">
+      <div class="author-card">
+        <div class="author-avatar"><i class="fas fa-user-graduate"></i></div>
+        <div>
+          <h2>关于作者</h2>
+          <p class="author-school">广州大学 · 软件工程 · 本科在读（2023–2027）</p>
+          <p class="author-bio">
+            GAMEVILA 是个人全栈技术实践项目，目标是在真实业务场景中掌握前后端分离、
+            会员体系设计、权限控制与工程化协作。欢迎通过 GitHub Issue 交流或提出建议。
+          </p>
+          <div class="author-links">
+            <a href="https://github.com/ll88-tt/game-platform-react-node" target="_blank" rel="noopener">
+              <i class="fab fa-github"></i> ll88-tt/game-platform-react-node
+            </a>
+            <router-link to="/contact"><i class="fas fa-envelope"></i> 联系反馈</router-link>
           </div>
         </div>
-
-        <div class="plan-step">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <h3>创建 GitHub 仓库</h3>
-            <ul>
-              <li>访问 https://github.com/new</li>
-              <li>创建新仓库：gamevila</li>
-              <li>选择 Public（公开）或 Private（私有）</li>
-              <li>不要初始化 README（我们已有代码）</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="plan-step">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <h3>关联远程仓库并推送</h3>
-            <pre class="code-block"><code># 添加远程仓库
-git remote add origin https://github.com/YOUR_USERNAME/gamevila.git
-
-# 首次提交
-git add .
-git commit -m "feat: initial commit with Vue 3 migration"
-
-# 推送到 GitHub
-git branch -M main
-git push -u origin main</code></pre>
-          </div>
-        </div>
-
-        <div class="plan-step">
-          <div class="step-number">4</div>
-          <div class="step-content">
-            <h3>规范化提交信息</h3>
-            <pre class="code-block"><code># 功能开发
-git commit -m "feat: add user authentication system"
-
-# Bug 修复
-git commit -m "fix: resolve login session timeout issue"
-
-# 文档更新
-git commit -m "docs: update README with installation guide"
-
-# 代码重构
-git commit -m "refactor: optimize game search algorithm"
-
-# 样式调整
-git commit -m "style: improve UI responsiveness"</code></pre>
-          </div>
-        </div>
-
-        <div class="plan-step">
-          <div class="step-number">5</div>
-          <div class="step-content">
-            <h3>版本标签与发布</h3>
-            <pre class="code-block"><code># 创建版本标签
-git tag -a v1.0.0 -m "Release version 1.0.0 - Vue 3 migration complete"
-
-# 推送标签
-git push origin v1.0.0
-
-# 在 GitHub 上创建 Release
-# 访问 https://github.com/YOUR_USERNAME/gamevila/releases
-# 点击 "Create a new release"</code></pre>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 项目结构 -->
-    <section class="content-section">
-      <div class="section-header">
-        <h2><i class="fas fa-folder-tree"></i> 项目结构</h2>
-      </div>
-
-      <div class="project-structure">
-        <pre class="structure-tree"><code>D:\FW\Game\
-├── frontend/                    # Vue 3 前端项目
-│   ├── src/
-│   │   ├── views/              # 页面组件
-│   │   │   ├── HomeView.vue
-│   │   │   ├── AboutView.vue
-│   │   │   ├── ServiceView.vue
-│   │   │   ├── ContactView.vue
-│   │   │   └── AdminFeedbackView.vue
-│   │   ├── components/         # 公共组件
-│   │   ├── router/             # 路由配置
-│   │   ├── stores/             # Pinia 状态管理
-│   │   ├── api/                # API 接口封装
-│   │   ├── App.vue             # 根组件
-│   │   └── main.js             # 入口文件
-│   ├── package.json
-│   ├── vite.config.js
-│   └── index.html
-│
-├── src/main/java/game/demo/    # Spring Boot 后端
-│   ├── config/                 # 配置类
-│   ├── controller/             # 控制器
-│   ├── entity/                 # 实体类
-│   ├── repository/             # 数据仓库
-│   ├── service/                # 业务逻辑
-│   └── GameApplication.java    # 启动类
-│
-├── src/main/resources/
-│   ├── static/                 # 静态资源（旧 HTML 保留）
-│   └── application.properties  # 配置文件
-│
-├── pom.xml                     # Maven 配置
-└── README.md                   # 项目说明（待创建）</code></pre>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import UserAvatarMenu from '../components/UserAvatarMenu.vue'
@@ -504,60 +209,120 @@ import UserAvatarMenu from '../components/UserAvatarMenu.vue'
 const router = useRouter()
 const userStore = useUserStore()
 
-const showDropdown = ref(false)
+const stats = [
+  { icon: 'fas fa-file-code', value: '9+', label: 'Vue 页面组件' },
+  { icon: 'fas fa-plug', value: '12+', label: 'REST 控制器' },
+  { icon: 'fas fa-crown', value: '4', label: 'VIP 订阅方案' },
+  { icon: 'fas fa-server', value: '1', label: '云服务器部署' }
+]
 
-const permissionIcon = computed(() => {
-  switch(userStore.permissionLevel) {
-    case 'LIFETIME': return '<i class="fas fa-crown" style="color: #f472b6; font-size: 0.8rem;"></i>'
-    case 'YEARLY': return '<i class="fas fa-gem" style="color: #a78bfa; font-size: 0.8rem;"></i>'
-    case 'QUARTERLY': return '<i class="fas fa-star" style="color: #fbbf24; font-size: 0.8rem;"></i>'
-    case 'MONTHLY': return '<i class="fas fa-check-circle" style="color: #34d399; font-size: 0.8rem;"></i>'
-    default: return '<i class="fas fa-user" style="color: #94a3b8; font-size: 0.8rem;"></i>'
+const capabilities = [
+  {
+    icon: 'fas fa-search',
+    tone: 'purple',
+    title: '智能搜索',
+    desc: 'Trie 树 + N-Gram 模糊匹配，数据库 LIKE 兜底。',
+    points: ['实时搜索建议', '热门搜索统计', '本地搜索历史']
+  },
+  {
+    icon: 'fas fa-crown',
+    tone: 'pink',
+    title: 'VIP 会员体系',
+    desc: '多层级订阅，模拟支付全流程。',
+    points: ['月度 / 季度 / 年度 / 终身', '订单记录与续费', '到期自动降级定时任务']
+  },
+  {
+    icon: 'fas fa-user-cog',
+    tone: 'blue',
+    title: '用户中心',
+    desc: '账号与个人数据统一管理。',
+    points: ['修改密码', '收藏与浏览历史', 'VIP 状态与订单']
+  },
+  {
+    icon: 'fas fa-shield-alt',
+    tone: 'green',
+    title: '管理后台',
+    desc: '管理员专属运营能力。',
+    points: ['数据看板', '游戏 CRUD 与封面上传', '套餐与反馈管理']
+  },
+  {
+    icon: 'fas fa-heart',
+    tone: 'rose',
+    title: '收藏系统',
+    desc: '登录用户收藏持久化到 MySQL。',
+    points: ['首页一键收藏', '用户中心管理', 'VIP 游戏权限提示']
+  },
+  {
+    icon: 'fas fa-history',
+    tone: 'amber',
+    title: '浏览历史',
+    desc: '云端同步，与 VIP 容量绑定。',
+    points: ['登录后跨设备同步', '未登录 localStorage 暂存', '登录自动合并上传']
   }
-})
+]
 
-const permissionName = computed(() => {
-  switch(userStore.permissionLevel) {
-    case 'LIFETIME': return '终身会员'
-    case 'YEARLY': return '年度会员'
-    case 'QUARTERLY': return '季度会员'
-    case 'MONTHLY': return '月度会员'
-    default: return '免费用户'
+const phases = [
+  {
+    label: 'Phase 1',
+    title: 'HTML + 原生 JS',
+    tone: 'muted',
+    tags: ['HTML5', 'CSS3', 'Spring Boot', 'MySQL', 'Redis'],
+    lines: [
+      '✅ 快速验证业务原型',
+      '❌ 页面重复、状态分散',
+      '❌ 无 SPA，维护成本高'
+    ]
+  },
+  {
+    label: 'Phase 2 · 当前',
+    title: 'Vue 3 + Vite 重构',
+    tone: 'active',
+    tags: ['Vue 3', 'Pinia', 'Vue Router', 'Axios', 'Vite 5'],
+    lines: [
+      '✅ 组件化与路由守卫',
+      '✅ 用户中心 / 订阅 / 管理后台',
+      '✅ 收藏、浏览历史云端同步'
+    ]
+  },
+  {
+    label: 'Phase 3 · 进行中',
+    title: 'Git 协作与部署',
+    tone: 'future',
+    tags: ['GitHub', 'perfect-verson', '云服务器', 'README'],
+    lines: [
+      '✅ 代码托管与分支管理',
+      '🚧 CI/CD 自动化（规划中）',
+      '🚧 Docker 容器化（规划中）'
+    ]
   }
-})
+]
+
+const techStacks = [
+  { title: '前端', icon: 'fas fa-laptop-code', items: ['Vue 3', 'Vite', 'Vue Router', 'Pinia', 'Axios'] },
+  { title: '后端', icon: 'fas fa-server', items: ['Spring Boot 3', 'Spring Security', 'JPA', 'Scheduled', 'BCrypt'] },
+  { title: '存储', icon: 'fas fa-database', items: ['MySQL 8', 'Redis', 'Spring Session'] },
+  { title: '工具', icon: 'fas fa-wrench', items: ['Maven', 'npm', 'JDK 17', 'Git', 'Font Awesome'] }
+]
+
+const siteRoutes = [
+  { path: '/home', name: '首页', icon: 'fas fa-home' },
+  { path: '/service', name: 'VIP 订阅', icon: 'fas fa-crown' },
+  { path: '/user-center', name: '用户中心', icon: 'fas fa-user-cog', badge: '登录' },
+  { path: '/subscription', name: '我的订阅', icon: 'fas fa-receipt', badge: '登录' },
+  { path: '/contact', name: '联系反馈', icon: 'fas fa-envelope' },
+  { path: '/admin-dashboard', name: '管理看板', icon: 'fas fa-chart-pie', badge: '管理员' },
+  { path: '/admin-games', name: '游戏管理', icon: 'fas fa-database', badge: '管理员' }
+]
 
 onMounted(async () => {
   await userStore.checkLoginStatus()
 })
 
-function toggleDropdown() {
-  showDropdown.value = !showDropdown.value
-}
-
-function openLoginModal() {
-  showDropdown.value = false
-  alert('登录功能请在首页使用')
+function goToHomeLogin() {
   router.push('/home')
 }
 
-async function handleLogout() {
-  await userStore.logout()
-  showDropdown.value = false
-  alert('已退出登录')
-}
-
-function goToAdminPanel() {
-  showDropdown.value = false
-  router.push('/admin-feedback')
-}
-
-function goToService() {
-  showDropdown.value = false
-  router.push('/service')
-}
-
 function openHistoryPanel() {
-  showDropdown.value = false
   if (userStore.isLoggedIn) {
     router.push({ path: '/user-center', query: { tab: 'history' } })
   } else {
@@ -568,7 +333,7 @@ function openHistoryPanel() {
 
 <style scoped>
 .about-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 }
@@ -580,6 +345,8 @@ function openHistoryPanel() {
   padding: 20px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .logo {
@@ -593,14 +360,14 @@ function openHistoryPanel() {
 
 .nav-links {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .nav-links a {
   color: #cbd5e1;
   text-decoration: none;
-  transition: color 0.2s;
 }
 
 .nav-links a:hover,
@@ -608,438 +375,477 @@ function openHistoryPanel() {
   color: #a78bfa;
 }
 
-.admin-btn {
-  background: linear-gradient(145deg, #ef4444, #f97316);
-  padding: 8px 18px;
-  border-radius: 40px;
-  color: white !important;
-  font-weight: 600;
-  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.3);
-}
-
+.admin-btn,
 .buy-now {
-  background: linear-gradient(145deg, #7c3aed, #a78bfa);
-  padding: 8px 18px;
+  padding: 8px 16px;
   border-radius: 40px;
   color: white !important;
   font-weight: 600;
-  box-shadow: 0 6px 14px rgba(124, 58, 237, 0.3);
+  font-size: 0.9rem;
 }
 
-.avatar-wrapper {
-  position: relative;
-}
+.admin-btn { background: linear-gradient(145deg, #ef4444, #f97316); }
+.dashboard-btn { background: linear-gradient(145deg, #6366f1, #8b5cf6); }
+.games-admin-btn { background: linear-gradient(145deg, #0ea5e9, #06b6d4); }
+.buy-now { background: linear-gradient(145deg, #7c3aed, #a78bfa); }
 
-.avatar-btn {
-  background: #161e2a;
-  border: 1px solid #2a3748;
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: #edf2f7;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 8px;
-  background: #161e2a;
-  border: 1px solid #2a3748;
-  border-radius: 12px;
-  min-width: 200px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.user-info {
-  padding: 16px;
-  border-bottom: 1px solid #2a3748;
-}
-
-.dropdown-item {
-  width: 100%;
-  padding: 12px 16px;
-  background: none;
-  border: none;
-  color: #cbd5e1;
-  text-align: left;
-  cursor: pointer;
-}
-
-.dropdown-item:hover {
-  background: #1e2a3a;
-}
-
-.divider {
-  height: 1px;
-  background: #2a3748;
-  margin: 8px 0;
-}
-
-.page-hero {
+.hero {
   text-align: center;
-  padding: 60px 0;
-  margin-bottom: 48px;
-}
-
-.page-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-
-.page-subtitle {
-  font-size: 1.2rem;
-  color: #94a3b8;
-}
-
-.content-section {
-  margin-bottom: 64px;
-}
-
-.section-header {
+  padding: 48px 24px 56px;
   margin-bottom: 32px;
 }
 
-.section-header h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  display: flex;
+.hero-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-}
-
-.content-card {
-  background: #161e2a;
-  border: 1px solid #2a3748;
-  border-radius: 16px;
-  padding: 32px;
-}
-
-.content-card p {
-  color: #cbd5e1;
-  line-height: 1.8;
-  margin-bottom: 24px;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
-  margin-top: 32px;
-}
-
-.feature-item {
-  background: #0b0e14;
-  padding: 24px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.feature-item i {
-  font-size: 2.5rem;
-  color: #a78bfa;
-  margin-bottom: 16px;
-}
-
-.feature-item h3 {
-  margin-bottom: 8px;
-}
-
-.feature-item p {
-  color: #94a3b8;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #7c3aed25;
+  border: 1px solid #7c3aed50;
+  color: #c4b5fd;
   font-size: 0.9rem;
-}
-
-/* 时间线样式 */
-.timeline {
-  position: relative;
-  padding-left: 40px;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 15px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, #7c3aed, #a78bfa, #f472b6);
-}
-
-.timeline-item {
-  position: relative;
-  margin-bottom: 48px;
-}
-
-.timeline-marker {
-  position: absolute;
-  left: -40px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1rem;
-}
-
-.phase-1 {
-  background: linear-gradient(135deg, #64748b, #94a3b8);
-}
-
-.phase-2 {
-  background: linear-gradient(135deg, #7c3aed, #a78bfa);
-}
-
-.phase-3 {
-  background: linear-gradient(135deg, #10b981, #34d399);
-}
-
-.timeline-content {
-  background: #161e2a;
-  border: 1px solid #2a3748;
-  border-radius: 16px;
-  padding: 32px;
-}
-
-.timeline-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.timeline-header h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.timeline-date {
-  color: #94a3b8;
-  font-size: 0.9rem;
-}
-
-.tech-stack {
-  margin-bottom: 24px;
-}
-
-.tech-category {
   margin-bottom: 20px;
 }
 
-.tech-category h4 {
-  color: #a78bfa;
-  margin-bottom: 12px;
-  font-size: 1rem;
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  margin-bottom: 16px;
 }
 
-.tech-tags {
+.hero-title span {
+  background: linear-gradient(135deg, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-desc {
+  max-width: 720px;
+  margin: 0 auto 28px;
+  color: #94a3b8;
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  color: white;
+}
+
+.btn-secondary {
+  background: #161e2a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translateY(-2px);
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  background: #161e2a;
+  border: 1px solid #2a3748;
+  border-radius: 14px;
+}
+
+.stat-card i {
+  font-size: 1.6rem;
+  color: #a78bfa;
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 1.5rem;
+}
+
+.stat-card span {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.content-section {
+  margin-bottom: 56px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.section-header p {
+  color: #94a3b8;
+}
+
+.capability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.capability-card {
+  background: #161e2a;
+  border: 1px solid #2a3748;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.capability-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.capability-icon.purple { background: #7c3aed30; color: #a78bfa; }
+.capability-icon.pink { background: #f472b630; color: #f472b6; }
+.capability-icon.blue { background: #3b82f630; color: #60a5fa; }
+.capability-icon.green { background: #10b98130; color: #34d399; }
+.capability-icon.rose { background: #fb718530; color: #fb7185; }
+.capability-icon.amber { background: #f59e0b30; color: #fbbf24; }
+
+.capability-card h3 {
+  margin-bottom: 8px;
+}
+
+.capability-card > p {
+  color: #94a3b8;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.capability-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.capability-card li {
+  color: #cbd5e1;
+  font-size: 0.88rem;
+  padding: 4px 0;
+}
+
+.capability-card li::before {
+  content: '· ';
+  color: #a78bfa;
+}
+
+.evolution-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.phase-card {
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #2a3748;
+}
+
+.phase-card.muted { background: #111827; }
+.phase-card.active {
+  background: linear-gradient(160deg, #161e2a, #1a103550);
+  border-color: #7c3aed60;
+}
+.phase-card.future {
+  background: linear-gradient(160deg, #161e2a, #0f292550);
+  border-color: #10b98150;
+}
+
+.phase-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.phase-head h3 {
+  margin: 6px 0 14px;
+  font-size: 1.2rem;
+}
+
+.phase-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.phase-tags span {
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+}
+
+.phase-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.phase-card li {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.arch-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.arch-node {
+  min-width: 160px;
+  padding: 20px 16px;
+  text-align: center;
+  border-radius: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.arch-node small {
+  font-weight: 400;
+  color: inherit;
+  opacity: 0.85;
+}
+
+.arch-node.frontend { background: #42b88325; border: 1px solid #42b88360; color: #6ee7b7; }
+.arch-node.backend { background: #6db33f25; border: 1px solid #6db33f60; color: #86efac; }
+.arch-node.data { background: #0ea5e925; border: 1px solid #0ea5e960; color: #7dd3fc; }
+
+.arch-arrow {
+  color: #64748b;
+  font-size: 1.2rem;
+}
+
+.design-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.note-card {
+  background: #161e2a;
+  border: 1px solid #2a3748;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.note-card h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #a78bfa;
+}
+
+.note-card p {
+  color: #94a3b8;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.stack-card {
+  background: #161e2a;
+  border: 1px solid #2a3748;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.stack-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 1.05rem;
+}
+
+.stack-items {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.tech-tag {
-  background: #0b0e14;
-  border: 1px solid #2a3748;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
+.stack-items span {
+  font-size: 0.82rem;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #0f172a;
   color: #cbd5e1;
 }
 
-.tech-tag.vue {
-  border-color: #42b883;
-  color: #42b883;
-}
-
-.tech-tag.vite {
-  border-color: #a78bfa;
-  color: #a78bfa;
-}
-
-.tech-tag.git {
-  border-color: #f05032;
-  color: #f05032;
-}
-
-.tech-tag.github {
-  border-color: #fff;
-  color: #fff;
-  background: #333;
-}
-
-.phase-description ul {
-  list-style: none;
-  padding: 0;
-}
-
-.phase-description li {
-  padding: 8px 0;
-  color: #cbd5e1;
-  line-height: 1.6;
-}
-
-/* 技术卡片网格 */
-.tech-grid {
+.route-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.tech-card {
-  background: #161e2a;
-  border: 1px solid #2a3748;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.tech-card-header {
-  padding: 24px;
-  display: flex;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
 }
 
-.tech-card-header i {
-  font-size: 2rem;
-}
-
-.tech-card-header h3 {
-  font-size: 1.3rem;
-}
-
-.frontend {
-  background: linear-gradient(135deg, #42b88320, #35495e20);
-  color: #42b883;
-}
-
-.backend {
-  background: linear-gradient(135deg, #6db33f20, #00000020);
-  color: #6db33f;
-}
-
-.database {
-  background: linear-gradient(135deg, #00758f20, #f2911120);
-  color: #00758f;
-}
-
-.tools {
-  background: linear-gradient(135deg, #a78bfa20, #f472b620);
-  color: #a78bfa;
-}
-
-.tech-card-body {
-  padding: 24px;
-}
-
-.tech-list {
+.route-card {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.tech-item {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #2a3748;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #161e2a;
+  border: 1px solid #2a3748;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s;
 }
 
-.tech-item:last-child {
-  border-bottom: none;
+.route-card:hover {
+  border-color: #7c3aed;
+  transform: translateY(-2px);
 }
 
-.tech-name {
-  font-weight: 600;
-  color: #edf2f7;
+.route-card i {
+  font-size: 1.2rem;
+  color: #a78bfa;
+  width: 24px;
+  text-align: center;
 }
 
-.tech-desc {
-  color: #94a3b8;
+.route-card strong {
+  display: block;
+}
+
+.route-card span {
+  color: #64748b;
   font-size: 0.85rem;
 }
 
-/* GitHub 计划 */
-.github-plan {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.route-badge {
+  margin-left: auto;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #7c3aed30;
+  color: #c4b5fd;
 }
 
-.plan-step {
+.author-section {
+  margin-bottom: 32px;
+}
+
+.author-card {
   display: flex;
   gap: 24px;
-  background: #161e2a;
-  border: 1px solid #2a3748;
-  border-radius: 16px;
+  align-items: flex-start;
   padding: 32px;
+  background: linear-gradient(135deg, #161e2a, #1a103540);
+  border: 1px solid #7c3aed40;
+  border-radius: 20px;
 }
 
-.step-number {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+.author-avatar {
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #f472b6);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  color: white;
   flex-shrink: 0;
 }
 
-.step-content h3 {
-  margin-bottom: 16px;
-  font-size: 1.3rem;
+.author-card h2 {
+  margin-bottom: 8px;
 }
 
-.step-content ul {
-  list-style: none;
-  padding: 0;
-}
-
-.step-content li {
-  padding: 8px 0;
-  color: #cbd5e1;
-  line-height: 1.6;
-}
-
-.code-block {
-  background: #0b0e14;
-  border: 1px solid #2a3748;
-  border-radius: 8px;
-  padding: 16px;
-  overflow-x: auto;
-}
-
-.code-block code {
+.author-school {
   color: #a78bfa;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
-  line-height: 1.6;
+  margin-bottom: 12px;
 }
 
-/* 项目结构 */
-.project-structure {
-  background: #161e2a;
-  border: 1px solid #2a3748;
-  border-radius: 16px;
-  padding: 32px;
-}
-
-.structure-tree {
-  color: #cbd5e1;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
+.author-bio {
+  color: #94a3b8;
   line-height: 1.8;
-  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.author-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.author-links a {
+  color: #cbd5e1;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.author-links a:hover {
+  color: #a78bfa;
+}
+
+@media (max-width: 768px) {
+  .header { flex-direction: column; align-items: flex-start; }
+  .author-card { flex-direction: column; }
+  .arch-flow { flex-direction: column; }
+  .arch-arrow { transform: rotate(90deg); }
 }
 </style>
