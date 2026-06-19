@@ -5,6 +5,7 @@ import game.demo.entity.User;
 import game.demo.repository.GameRepository;
 import game.demo.service.GameSearchService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +24,18 @@ public class GameController {
     @Autowired
     private GameSearchService gameSearchService;
 
+    private User getCurrentUser(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (User) session.getAttribute("currentUser");
+    }
+
     @GetMapping
     public ResponseEntity<List<Game>> getAllGames(HttpServletRequest request) {
-        User user = (User) request.getSession(false).getAttribute("currentUser");
-        List<Game> games = gameRepository.findAll();
+        User user = getCurrentUser(request);
+        List<Game> games = gameRepository.findByPublishedTrue();
 
         games.forEach(game -> {
             if (game.isVipOnly() && !game.canAccessBy(user)) {
@@ -41,7 +50,7 @@ public class GameController {
     // ... existing code ...
     @GetMapping("/search")
     public ResponseEntity<List<Game>> searchGames(@RequestParam String name, HttpServletRequest request) {
-        User user = (User) request.getSession(false).getAttribute("currentUser");
+        User user = getCurrentUser(request);
         List<Game> games = gameSearchService.searchGames(name);
 
         games.forEach(game -> {
@@ -60,12 +69,18 @@ public class GameController {
         return ResponseEntity.ok(suggestions);
     }
 
+    @GetMapping("/popular-searches")
+    public ResponseEntity<List<Map<String, Object>>> getPopularSearches(
+            @RequestParam(defaultValue = "8") int limit) {
+        return ResponseEntity.ok(gameSearchService.getPopularSearches(limit));
+    }
+
     @GetMapping("/category/{category}")
 // ... existing code ...
 
     public ResponseEntity<List<Game>> getGamesByCategory(@PathVariable String category, HttpServletRequest request) {
-        User user = (User) request.getSession(false).getAttribute("currentUser");
-        List<Game> games = gameRepository.findByCategory(category);
+        User user = getCurrentUser(request);
+        List<Game> games = gameRepository.findByCategoryAndPublishedTrue(category);
 
         games.forEach(game -> {
             if (game.isVipOnly() && !game.canAccessBy(user)) {
@@ -77,17 +92,10 @@ public class GameController {
         return ResponseEntity.ok(games);
     }
 
-    @PostMapping
-    public ResponseEntity<Game> createGame(@RequestBody Game game) {
-        Game savedGame = gameRepository.save(game);
-        gameSearchService.addGameToIndex(savedGame);
-        return ResponseEntity.ok(savedGame);
-    }
-
     @PostMapping("/{gameId}/check-access")
     public ResponseEntity<Map<String, Object>> checkGameAccess(@PathVariable Long gameId, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
-        User user = (User) request.getSession(false).getAttribute("currentUser");
+        User user = getCurrentUser(request);
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             response.put("success", false);

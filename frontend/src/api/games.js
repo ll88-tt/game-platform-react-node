@@ -15,5 +15,17 @@ export const gameApi = {
         return axios.get(`/api/games/search?name=${encodeURIComponent(name)}`, {
             withCredentials: true
         })
+    },
+
+    getAutocompleteSuggestions(prefix) {
+        return axios.get(`/api/games/autocomplete?prefix=${encodeURIComponent(prefix)}`, {
+            withCredentials: true
+        })
+    },
+
+    getPopularSearches(limit = 8) {
+        return axios.get(`/api/games/popular-searches?limit=${limit}`, {
+            withCredentials: true
+        })
     }
 }

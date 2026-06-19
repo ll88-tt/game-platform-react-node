@@ -2,6 +2,7 @@ package game.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "users")
@@ -136,5 +137,20 @@ public class User implements java.io.Serializable {
             return "终身VIP";
         }
         return "VIP (至 " + vipExpiryTime.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ")";
+    }
+
+    public Long getVipDaysRemaining() {
+        if (vipExpiryTime == null) {
+            return null;
+        }
+        return Math.max(0, ChronoUnit.DAYS.between(LocalDateTime.now(), vipExpiryTime));
+    }
+
+    public boolean isVipExpired() {
+        return vip && vipExpiryTime != null && !hasValidPermission();
+    }
+
+    public boolean isVipLifetime() {
+        return hasValidPermission() && vipExpiryTime == null;
     }
 }

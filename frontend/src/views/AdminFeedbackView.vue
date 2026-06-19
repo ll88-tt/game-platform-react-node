@@ -13,6 +13,14 @@
         <router-link to="/service">服务</router-link>
         <router-link to="/contact">联系</router-link>
 
+        <router-link to="/admin-dashboard" class="admin-btn dashboard-btn">
+          <i class="fas fa-chart-pie"></i> 仪表盘
+        </router-link>
+
+        <router-link to="/admin-games" class="admin-btn games-admin-btn">
+          <i class="fas fa-database"></i> 游戏管理
+        </router-link>
+
         <router-link to="/admin-feedback" class="active admin-btn">
           <i class="fas fa-inbox"></i> 查看反馈 <i class="fas fa-arrow-right"></i>
         </router-link>
@@ -22,46 +30,12 @@
         </router-link>
       </nav>
 
-      <div class="avatar-wrapper" @click="toggleDropdown">
-        <button class="avatar-btn">
-          <i
-              class="fas fa-user-circle avatar-icon"
-              :style="{ color: userStore.isLoggedIn ? '#c084fc' : '#94a3b8' }"
-          ></i>
-          <span class="avatar-text">
-            {{ userStore.currentUser }}
-            <i v-html="permissionIcon"></i>
-          </span>
-          <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
-        </button>
-
-        <div v-show="showDropdown" class="dropdown-menu">
-          <div class="user-info">
-            <i class="fas fa-user-check"></i> 欢迎，{{ userStore.currentUser }}
-            <br/>
-            <small style="color: #a78bfa;">
-              {{ permissionName }}
-              <span v-if="userStore.vipExpiryTime && userStore.vipExpiryTime !== '永久'">
-                (至 {{ userStore.vipExpiryTime }})
-              </span>
-            </small>
-          </div>
-
-          <button class="dropdown-item active">
-            <i class="fas fa-shield-alt"></i> 管理后台
-          </button>
-
-          <button class="dropdown-item" @click="handleLogout">
-            <i class="fas fa-sign-out-alt"></i> 退出账号
-          </button>
-
-          <div class="divider"></div>
-
-          <button class="dropdown-item" @click="goToHome">
-            <i class="fas fa-home"></i> 返回首页
-          </button>
-        </div>
-      </div>
+      <UserAvatarMenu
+          :show-admin-dashboard="userStore.isAdmin"
+          :show-admin-games="userStore.isAdmin"
+          :show-admin-feedback="userStore.isAdmin"
+          show-home-link
+      />
     </header>
 
     <!-- 权限检查中 -->
@@ -233,6 +207,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import UserAvatarMenu from '../components/UserAvatarMenu.vue'
 import { feedbackApi } from '../api/feedback'
 
 const router = useRouter()
@@ -452,6 +427,16 @@ async function executeDelete() {
   color: white !important;
   font-weight: 600;
   box-shadow: 0 6px 14px rgba(239, 68, 68, 0.3);
+}
+
+.games-admin-btn {
+  background: linear-gradient(145deg, #7c3aed, #6366f1);
+  box-shadow: 0 6px 14px rgba(124, 58, 237, 0.3);
+}
+
+.dashboard-btn {
+  background: linear-gradient(145deg, #0ea5e9, #6366f1);
+  box-shadow: 0 6px 14px rgba(14, 165, 233, 0.3);
 }
 
 .buy-now {

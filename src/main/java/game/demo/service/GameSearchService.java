@@ -61,7 +61,7 @@ public class GameSearchService {
             buildingTrieEngine = new TrieSearchEngine();
             buildingNgramIndex = new NGramInvertedIndex();
 
-            List<Game> allGames = gameRepository.findAll();
+            List<Game> allGames = gameRepository.findByPublishedTrue();
 
             for (Game game : allGames) {
                 if (game.getName() != null && !game.getName().isEmpty()) {
@@ -90,25 +90,45 @@ public class GameSearchService {
 
     public List<Game> searchGames(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return gameRepository.findAll();
+            return gameRepository.findByPublishedTrue();
         }
 
         String trimmedKeyword = keyword.trim();
+        Set<Long> seenIds = new LinkedHashSet<>();
+        List<Long> orderedIds = new ArrayList<>();
 
-        List<Long> trieResults = trieEngine.search(trimmedKeyword);
-        List<Long> ngramResults = ngramIndex.search(trimmedKeyword);
+        for (Long id : trieEngine.search(trimmedKeyword)) {
+            if (seenIds.add(id)) {
+                orderedIds.add(id);
+            }
+        }
 
-        Set<Long> combinedResults = new LinkedHashSet<>();
-        combinedResults.addAll(trieResults);
-        combinedResults.addAll(ngramResults);
+        for (Long id : ngramIndex.search(trimmedKeyword)) {
+            if (seenIds.add(id)) {
+                orderedIds.add(id);
+            }
+        }
 
-        if (combinedResults.isEmpty()) {
+        for (Game game : gameRepository.searchByKeyword(trimmedKeyword)) {
+            if (seenIds.add(game.getId())) {
+                orderedIds.add(game.getId());
+            }
+        }
+
+        if (orderedIds.isEmpty()) {
             return List.of();
         }
 
-        List<Game> games = gameRepository.findAllById(combinedResults);
+        Map<Long, Game> gameMap = gameRepository.findAllById(orderedIds).stream()
+                .collect(Collectors.toMap(Game::getId, game -> game));
 
-        games.forEach(game -> game.incrementSearchCount());
+        List<Game> games = orderedIds.stream()
+                .map(gameMap::get)
+                .filter(Objects::nonNull)
+                .filter(Game::isPublished)
+                .collect(Collectors.toList());
+
+        games.forEach(Game::incrementSearchCount);
         gameRepository.saveAll(games);
 
         return games;
@@ -119,11 +139,41 @@ public class GameSearchService {
             return Collections.emptyList();
         }
 
-        return trieEngine.getAutocompleteSuggestions(prefix.trim(), 5);
+        String trimmedPrefix = prefix.trim();
+        LinkedHashSet<String> suggestions = new LinkedHashSet<>();
+
+        trieEngine.getAutocompleteSuggestions(trimmedPrefix, 5).forEach(suggestions::add);
+
+        if (suggestions.size() < 5) {
+            gameRepository.searchByKeyword(trimmedPrefix).stream()
+                    .map(Game::getName)
+                    .filter(Objects::nonNull)
+                    .limit(5 - suggestions.size())
+                    .forEach(suggestions::add);
+        }
+
+        return suggestions.stream().limit(5).collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getPopularSearches(int limit) {
+        int size = Math.max(1, Math.min(limit, 10));
+        return gameRepository.findTop10ByPublishedTrueOrderBySearchCountDesc().stream()
+                .limit(size)
+                .map(game -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("keyword", game.getName());
+                    item.put("searchCount", game.getSearchCount());
+                    item.put("category", game.getCategory());
+                    return item;
+                })
+                .collect(Collectors.toList());
     }
 
     public void addGameToIndex(Game game) {
         synchronized (rebuildLock) {
+            if (!game.isPublished()) {
+                return;
+            }
             if (game.getName() != null && !game.getName().isEmpty()) {
                 trieEngine.insert(game.getName(), game.getId());
                 ngramIndex.insert(game.getName(), game.getId());

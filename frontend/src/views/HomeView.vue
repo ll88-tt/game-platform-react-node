@@ -16,6 +16,23 @@
         <!-- 管理员专属按钮 -->
         <router-link
             v-if="userStore.isAdmin"
+            to="/admin-dashboard"
+            class="admin-btn dashboard-btn"
+        >
+          <i class="fas fa-chart-pie"></i> 仪表盘
+        </router-link>
+
+        <router-link
+            v-if="userStore.isAdmin"
+            to="/admin-games"
+            class="admin-btn games-admin-btn"
+        >
+          <i class="fas fa-database"></i> 游戏管理
+          <i class="fas fa-arrow-right"></i>
+        </router-link>
+
+        <router-link
+            v-if="userStore.isAdmin"
             to="/admin-feedback"
             class="admin-btn"
         >
@@ -29,78 +46,17 @@
       </nav>
 
       <!-- 用户头像区域 -->
-      <div class="avatar-wrapper" @click="toggleDropdown">
-        <button class="avatar-btn">
-          <i
-              class="fas fa-user-circle avatar-icon"
-              :style="{ color: userStore.isLoggedIn ? '#c084fc' : '#94a3b8' }"
-          ></i>
-          <span class="avatar-text">
-            {{ userStore.isLoggedIn ? userStore.currentUser : '游客' }}
-            <i v-if="userStore.isLoggedIn" v-html="permissionIcon"></i>
-          </span>
-          <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
-        </button>
-
-        <!-- 下拉菜单 -->
-        <div v-show="showDropdown" class="dropdown-menu">
-          <div v-if="userStore.isLoggedIn" class="user-info">
-            <i class="fas fa-user-check"></i>
-            欢迎，{{ userStore.currentUser }}
-            <br/>
-            <small style="color: #a78bfa;">
-              {{ permissionName }}
-              <span v-if="userStore.vipExpiryTime && userStore.vipExpiryTime !== '永久'">
-                (至 {{ userStore.vipExpiryTime }})
-              </span>
-            </small>
-          </div>
-
-          <!-- 管理员按钮 -->
-          <button
-              v-if="userStore.isAdmin"
-              class="dropdown-item"
-              @click="goToAdminPanel"
-          >
-            <i class="fas fa-shield-alt"></i> 管理后台
-          </button>
-
-          <!-- 我的订阅 -->
-          <button
-              v-if="userStore.isLoggedIn"
-              class="dropdown-item"
-              @click="goToService"
-          >
-            <i class="fas fa-crown"></i> 我的订阅
-          </button>
-
-          <!-- 退出登录 -->
-          <button
-              v-if="userStore.isLoggedIn"
-              class="dropdown-item"
-              @click="handleLogout"
-          >
-            <i class="fas fa-sign-out-alt"></i> 退出账号
-          </button>
-
-          <!-- 登录按钮 -->
-          <button
-              v-else
-              class="dropdown-item"
-              @click="openLoginModal"
-          >
-            <i class="fas fa-sign-in-alt"></i> 登录
-          </button>
-
-          <div class="divider"></div>
-
-          <!-- 浏览记录 -->
-          <button class="dropdown-item" @click="openHistoryPanel">
-            <i class="fas fa-history"></i> 查看浏览记录
-          </button>
-        </div>
-      </div>
+      <UserAvatarMenu
+          :show-admin-dashboard="userStore.isAdmin"
+          :show-admin-games="userStore.isAdmin"
+          :show-admin-feedback="userStore.isAdmin"
+          show-browse-history
+          @login="openLoginModal"
+          @browse-history="openHistoryPanel"
+      />
     </header>
+
+    <VipExpiryBanner />
 
     <!-- Hero 区域 -->
     <section class="hero">
@@ -118,21 +74,73 @@
               type="text"
               v-model="searchKeyword"
               @input="handleSearchInput"
+              @focus="handleSearchFocus"
+              @blur="handleSearchBlur"
+              @keydown.enter="handleSearchEnter"
               class="search-input"
               placeholder="搜索游戏名称..."
               autocomplete="off"
           />
           <i class="fas fa-search search-icon"></i>
 
-          <!-- 自动补全下拉框 -->
-          <div v-if="showAutocomplete && suggestions.length > 0" class="autocomplete-dropdown">
+          <div v-if="showSearchPanel" class="search-panel">
+            <template v-if="searchKeyword.trim() && suggestions.length > 0">
+              <div class="panel-section-title">搜索建议</div>
+              <div
+                  v-for="(suggestion, index) in suggestions"
+                  :key="'s-' + index"
+                  class="panel-item"
+                  @mousedown.prevent="selectKeyword(suggestion)"
+              >
+                <i class="fas fa-search"></i>
+                <span>{{ suggestion }}</span>
+              </div>
+            </template>
+
+            <template v-if="!searchKeyword.trim() && searchHistory.length > 0">
+              <div class="panel-section-header">
+                <span class="panel-section-title">搜索历史</span>
+                <button class="panel-clear-btn" @mousedown.prevent="clearHistory">清空</button>
+              </div>
+              <div
+                  v-for="item in searchHistory"
+                  :key="'h-' + item.keyword"
+                  class="panel-item history-item"
+                  @mousedown.prevent="selectKeyword(item.keyword)"
+              >
+                <i class="fas fa-history"></i>
+                <span>{{ item.keyword }}</span>
+                <button
+                    class="remove-history-btn"
+                    @mousedown.prevent.stop="removeSearchHistoryItem(item.keyword)"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </template>
+
+            <template v-if="popularSearches.length > 0 && (!searchKeyword.trim() || suggestions.length === 0)">
+              <div class="panel-section-title">
+                <i class="fas fa-fire" style="color: #f97316;"></i> 热门搜索
+              </div>
+              <div class="popular-tags">
+                <button
+                    v-for="item in popularSearches"
+                    :key="'p-' + item.keyword"
+                    class="popular-tag"
+                    @mousedown.prevent="selectKeyword(item.keyword)"
+                >
+                  {{ item.keyword }}
+                  <span v-if="item.searchCount" class="tag-count">{{ item.searchCount }}</span>
+                </button>
+              </div>
+            </template>
+
             <div
-                v-for="(suggestion, index) in suggestions"
-                :key="index"
-                class="autocomplete-item"
-                @click="selectSuggestion(suggestion)"
+                v-if="!searchKeyword.trim() && searchHistory.length === 0 && popularSearches.length === 0"
+                class="panel-empty"
             >
-              {{ suggestion }}
+              输入关键词开始搜索
             </div>
           </div>
         </div>
@@ -188,6 +196,14 @@
             class="game-img"
             :style="{ background: game.imageUrl ? '#1e2a3a' : '#3b2e5c' }"
         >
+          <button
+              class="favorite-btn"
+              :class="{ active: isFavorited(game.id) }"
+              :title="isFavorited(game.id) ? '取消收藏' : '收藏'"
+              @click.stop="toggleFavorite(game)"
+          >
+            <i :class="isFavorited(game.id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+          </button>
           <img
               v-if="game.imageUrl"
               :src="game.imageUrl"
@@ -341,18 +357,36 @@
         </div>
 
         <div class="panel-body">
+          <div v-if="userStore.isLoggedIn && libraryLimits" class="history-limit-hint">
+            已保存 {{ libraryLimits.browseHistoryCount }} / {{ libraryLimits.maxBrowseHistory }} 条
+            <span v-if="libraryLimits.tier === 'FREE'">（开通 VIP 可提升至 100 条）</span>
+          </div>
+
           <div v-if="browseHistory.length === 0" class="empty-history">
             暂无浏览记录
           </div>
 
           <div
               v-for="(item, index) in browseHistory"
-              :key="index"
-              class="history-item"
+              :key="item.historyId || item.id || index"
+              class="history-item clickable"
+              @click="openFromHistory(item)"
           >
-            <div class="history-name">{{ item.name }}</div>
-            <div class="history-time">{{ formatTime(item.time) }}</div>
+            <div class="history-name">
+              {{ item.name }}
+              <span v-if="item.vipOnly && item.canAccess === false" class="vip-lock-tag">
+                <i class="fas fa-lock"></i> VIP
+              </span>
+            </div>
+            <div class="history-time">{{ formatTime(item.time || item.viewedAt) }}</div>
+            <button class="remove-history-btn" title="删除" @click.stop="removeHistoryItem(item)">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
+        </div>
+
+        <div v-if="browseHistory.length > 0" class="panel-footer">
+          <button class="clear-history-btn" @click="clearAllBrowseHistory">清空记录</button>
         </div>
       </div>
     </div>
@@ -361,11 +395,30 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { gameApi } from '../api/games'
+import { userApi } from '../api/user'
+import VipExpiryBanner from '../components/VipExpiryBanner.vue'
+import UserAvatarMenu from '../components/UserAvatarMenu.vue'
+import {
+  loadSearchHistory,
+  saveSearchKeyword,
+  removeSearchKeyword,
+  clearSearchHistory
+} from '../utils/searchHistory'
+import {
+  loadLocalBrowseHistory,
+  recordLocalBrowse,
+  removeLocalBrowse,
+  clearLocalBrowseHistory,
+  getLocalBrowseHistoryForSync,
+  clearLocalBrowseHistoryStorage
+} from '../utils/browseHistory'
+import { showVipReminderOnLogin } from '../utils/vipReminder'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 // 数据状态
@@ -373,8 +426,10 @@ const games = ref([])
 const allGames = ref([])
 const currentCategory = ref('all')
 const searchKeyword = ref('')
-const showAutocomplete = ref(false)
+const showSearchPanel = ref(false)
 const suggestions = ref([])
+const searchHistory = ref([])
+const popularSearches = ref([])
 const showDropdown = ref(false)
 const showLoginModal = ref(false)
 const showRegisterModal = ref(false)
@@ -385,6 +440,8 @@ const loginError = ref('')
 const registerError = ref('')
 const registerSuccess = ref('')
 const browseHistory = ref([])
+const favoriteIds = ref([])
+const libraryLimits = ref(null)
 
 // 表单数据
 const loginForm = ref({
@@ -436,8 +493,29 @@ const permissionName = computed(() => {
 onMounted(async () => {
   await userStore.checkLoginStatus()
   await loadGames()
-  loadBrowseHistory()
+  await syncBrowseHistoryIfNeeded()
+  await loadBrowseHistory()
+  refreshSearchHistory()
+  await loadPopularSearches()
+  await loadFavoriteIds()
+  await loadLibraryLimits()
+  if (route.query.history === '1') {
+    openHistoryPanel()
+  }
 })
+
+async function loadPopularSearches() {
+  try {
+    const response = await gameApi.getPopularSearches(8)
+    popularSearches.value = response.data
+  } catch (error) {
+    console.error('加载热门搜索失败:', error)
+  }
+}
+
+function refreshSearchHistory() {
+  searchHistory.value = loadSearchHistory()
+}
 
 // 方法
 async function loadGames() {
@@ -467,34 +545,85 @@ async function filterByCategory(category) {
 }
 
 let searchTimeout = null
+let autocompleteTimeout = null
+
 function handleSearchInput() {
   if (searchTimeout) clearTimeout(searchTimeout)
+  if (autocompleteTimeout) clearTimeout(autocompleteTimeout)
+
+  const keyword = searchKeyword.value.trim()
+
+  if (!keyword) {
+    filterByCategory(currentCategory.value)
+    suggestions.value = []
+    showSearchPanel.value = searchHistory.value.length > 0 || popularSearches.value.length > 0
+    return
+  }
+
+  showSearchPanel.value = true
+
+  autocompleteTimeout = setTimeout(async () => {
+    try {
+      const response = await gameApi.getAutocompleteSuggestions(keyword)
+      suggestions.value = response.data
+    } catch (error) {
+      console.error('获取搜索建议失败:', error)
+      suggestions.value = []
+    }
+  }, 150)
 
   searchTimeout = setTimeout(async () => {
-    if (!searchKeyword.value || searchKeyword.value.trim() === '') {
-      filterByCategory(currentCategory.value)
-      showAutocomplete.value = false
-      return
-    }
-
-    try {
-      const response = await gameApi.searchGames(searchKeyword.value)
-      games.value = response.data
-
-      // 生成自动补全建议
-      suggestions.value = response.data
-          .map(game => game.name)
-          .slice(0, 5)
-      showAutocomplete.value = suggestions.value.length > 0
-    } catch (error) {
-      console.error('搜索失败:', error)
-    }
+    await performSearch(keyword, false)
   }, 300)
 }
 
-function selectSuggestion(suggestion) {
-  searchKeyword.value = suggestion
-  showAutocomplete.value = false
+function handleSearchFocus() {
+  showSearchPanel.value = true
+  if (!searchKeyword.value.trim()) {
+    refreshSearchHistory()
+  }
+}
+
+function handleSearchBlur() {
+  setTimeout(() => {
+    showSearchPanel.value = false
+  }, 150)
+}
+
+async function handleSearchEnter() {
+  const keyword = searchKeyword.value.trim()
+  if (!keyword) return
+  await performSearch(keyword, true)
+  showSearchPanel.value = false
+}
+
+async function performSearch(keyword, saveHistory = true) {
+  try {
+    const response = await gameApi.searchGames(keyword)
+    games.value = response.data
+    if (saveHistory) {
+      saveSearchKeyword(keyword)
+      refreshSearchHistory()
+    }
+  } catch (error) {
+    console.error('搜索失败:', error)
+  }
+}
+
+async function selectKeyword(keyword) {
+  searchKeyword.value = keyword
+  showSearchPanel.value = false
+  await performSearch(keyword, true)
+}
+
+function removeSearchHistoryItem(keyword) {
+  removeSearchKeyword(keyword)
+  refreshSearchHistory()
+}
+
+function clearHistory() {
+  clearSearchHistory()
+  refreshSearchHistory()
 }
 
 function toggleDropdown() {
@@ -531,7 +660,11 @@ async function handleLogin() {
 
   if (result.success) {
     closeLoginModal()
-    //alert(`登录成功！欢迎 ${userStore.currentUser}`)
+    showVipReminderOnLogin(userStore)
+    await syncBrowseHistoryIfNeeded()
+    await loadBrowseHistory()
+    await loadFavoriteIds()
+    await loadLibraryLimits()
   } else {
     loginError.value = result.message || '登录失败'
   }
@@ -615,9 +748,24 @@ async function handleLogout() {
   alert('已退出登录')
 }
 
-function goToAdminPanel() {
+function goToAdminDashboard() {
+  closeDropdown()
+  router.push('/admin-dashboard')
+}
+
+function goToAdminGames() {
+  closeDropdown()
+  router.push('/admin-games')
+}
+
+function goToAdminFeedback() {
   closeDropdown()
   router.push('/admin-feedback')
+}
+
+function goToUserCenter() {
+  closeDropdown()
+  router.push('/user-center')
 }
 
 function goToService() {
@@ -627,6 +775,7 @@ function goToService() {
 
 function openHistoryPanel() {
   closeDropdown()
+  loadBrowseHistory()
   showHistoryPanel.value = true
 }
 
@@ -634,34 +783,200 @@ function closeHistoryPanel() {
   showHistoryPanel.value = false
 }
 
-function recordGameVisit(game) {
-  // 记录到浏览历史
-  const history = JSON.parse(localStorage.getItem('browseHistory') || '[]')
+async function syncBrowseHistoryIfNeeded() {
+  if (!userStore.isLoggedIn) return
 
-  // 移除重复项
-  const filtered = history.filter(item => item.id !== game.id)
+  const items = getLocalBrowseHistoryForSync()
+  if (items.length === 0) return
 
-  // 添加到开头
-  filtered.unshift({
-    id: game.id,
-    name: game.name,
-    time: new Date().toISOString()
-  })
+  try {
+    await userApi.syncBrowseHistory(items)
+    clearLocalBrowseHistoryStorage()
+  } catch (error) {
+    console.error('同步浏览记录失败:', error)
+  }
+}
 
-  // 只保留最近20条
-  const limited = filtered.slice(0, 20)
+async function loadLibraryLimits() {
+  if (!userStore.isLoggedIn) {
+    libraryLimits.value = null
+    return
+  }
 
-  localStorage.setItem('browseHistory', JSON.stringify(limited))
-  browseHistory.value = limited
+  try {
+    const response = await userApi.getLibraryLimits()
+    libraryLimits.value = response.data
+  } catch (error) {
+    console.error('加载库容量失败:', error)
+  }
+}
 
-  // 跳转到游戏链接
+function mapServerHistory(items) {
+  return items.map(item => ({
+    ...item,
+    id: item.gameId,
+    time: item.viewedAt
+  }))
+}
+
+async function recordGameVisit(game) {
+  await recordBrowseForGame(game)
+
+  if (game.vipOnly && !userStore.hasValidPermission) {
+    if (!userStore.isLoggedIn) {
+      openLoginModal()
+      return
+    }
+    if (confirm('该游戏需要 VIP 权限，是否前往开通？')) {
+      router.push('/service')
+    }
+    return
+  }
+
   if (game.link && game.link !== '#') {
     window.open(game.link, '_blank')
   }
 }
 
-function loadBrowseHistory() {
-  browseHistory.value = JSON.parse(localStorage.getItem('browseHistory') || '[]')
+async function recordBrowseForGame(game) {
+  if (userStore.isLoggedIn) {
+    try {
+      const response = await userApi.recordBrowse(game.id)
+      if (response.data.success && response.data.item) {
+        const item = response.data.item
+        const mapped = mapServerHistory([item])[0]
+        browseHistory.value = [
+          mapped,
+          ...browseHistory.value.filter(entry => entry.id !== game.id)
+        ]
+        if (response.data.maxBrowseHistory) {
+          libraryLimits.value = {
+            ...libraryLimits.value,
+            ...response.data
+          }
+        }
+      } else {
+        await loadBrowseHistory()
+      }
+    } catch (error) {
+      console.error('记录浏览失败:', error)
+    }
+    return
+  }
+
+  browseHistory.value = recordLocalBrowse(game)
+}
+
+async function loadBrowseHistory() {
+  if (userStore.isLoggedIn) {
+    try {
+      const response = await userApi.getBrowseHistory()
+      browseHistory.value = mapServerHistory(response.data)
+    } catch (error) {
+      console.error('加载浏览记录失败:', error)
+      browseHistory.value = []
+    }
+    return
+  }
+
+  browseHistory.value = loadLocalBrowseHistory()
+}
+
+function openFromHistory(item) {
+  if (item.vipOnly && item.canAccess === false) {
+    if (!userStore.isLoggedIn) {
+      openLoginModal()
+      return
+    }
+    if (confirm('该游戏需要 VIP 权限，是否前往开通？')) {
+      router.push('/service')
+    }
+    return
+  }
+
+  if (item.link && item.link !== '#') {
+    window.open(item.link, '_blank')
+  }
+}
+
+async function removeHistoryItem(item) {
+  const gameId = item.gameId || item.id
+  if (userStore.isLoggedIn) {
+    try {
+      await userApi.removeBrowseHistory(gameId)
+      browseHistory.value = browseHistory.value.filter(entry => entry.id !== gameId)
+      await loadLibraryLimits()
+    } catch (error) {
+      alert('删除失败')
+    }
+    return
+  }
+
+  browseHistory.value = removeLocalBrowse(gameId)
+}
+
+async function clearAllBrowseHistory() {
+  if (!confirm('确定清空全部浏览记录？')) return
+
+  if (userStore.isLoggedIn) {
+    try {
+      await userApi.clearBrowseHistory()
+      browseHistory.value = []
+      await loadLibraryLimits()
+    } catch (error) {
+      alert('清空失败')
+    }
+    return
+  }
+
+  browseHistory.value = clearLocalBrowseHistory()
+}
+
+async function loadFavoriteIds() {
+  if (!userStore.isLoggedIn) {
+    favoriteIds.value = []
+    return
+  }
+
+  try {
+    const response = await userApi.getFavoriteIds()
+    favoriteIds.value = response.data
+  } catch (error) {
+    console.error('加载收藏失败:', error)
+  }
+}
+
+function isFavorited(gameId) {
+  return favoriteIds.value.includes(gameId)
+}
+
+async function toggleFavorite(game) {
+  if (!userStore.isLoggedIn) {
+    closeDropdown()
+    openLoginModal()
+    return
+  }
+
+  try {
+    if (isFavorited(game.id)) {
+      const response = await userApi.removeFavorite(game.id)
+      if (response.data.success) {
+        favoriteIds.value = favoriteIds.value.filter(id => id !== game.id)
+      }
+    } else {
+      const response = await userApi.addFavorite(game.id)
+      if (response.data.success) {
+        favoriteIds.value = [...favoriteIds.value, game.id]
+        if (response.data.maxFavorites) {
+          libraryLimits.value = { ...libraryLimits.value, ...response.data }
+        }
+      } else {
+        alert(response.data.message || '收藏失败')
+      }
+    }
+  } catch (error) {
+    alert(error.response?.data?.message || '操作失败')
+  }
 }
 
 function formatTime(isoString) {
@@ -735,6 +1050,16 @@ watch(showDropdown, (value) => {
   font-weight: 600;
   box-shadow: 0 6px 14px rgba(239, 68, 68, 0.3);
   transition: all 0.2s;
+}
+
+.games-admin-btn {
+  background: linear-gradient(145deg, #7c3aed, #6366f1);
+  box-shadow: 0 6px 14px rgba(124, 58, 237, 0.3);
+}
+
+.dashboard-btn {
+  background: linear-gradient(145deg, #0ea5e9, #6366f1);
+  box-shadow: 0 6px 14px rgba(14, 165, 233, 0.3);
 }
 
 .buy-now {
@@ -871,6 +1196,119 @@ watch(showDropdown, (value) => {
   color: #64748b;
 }
 
+.search-container {
+  position: relative;
+  max-width: 500px;
+}
+
+.search-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: #161e2a;
+  border: 1px solid #2a3748;
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 100;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.panel-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px 4px;
+}
+
+.panel-section-title {
+  padding: 8px 16px 4px;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-clear-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.panel-clear-btn:hover { color: #ef4444; }
+
+.panel-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #cbd5e1;
+}
+
+.panel-item i { color: #64748b; width: 16px; text-align: center; }
+
+.panel-item:hover { background: #1e2a3a; }
+
+.history-item {
+  justify-content: space-between;
+}
+
+.remove-history-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.remove-history-btn:hover { color: #ef4444; }
+
+.popular-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px 12px;
+}
+
+.popular-tag {
+  background: #1e2a3a;
+  border: 1px solid #2a3748;
+  border-radius: 20px;
+  padding: 6px 14px;
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.popular-tag:hover {
+  border-color: #7c3aed;
+  color: #a78bfa;
+}
+
+.tag-count {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  color: #f97316;
+  font-weight: 600;
+}
+
+.panel-empty {
+  padding: 20px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
 .autocomplete-dropdown {
   position: absolute;
   top: 100%;
@@ -985,11 +1423,36 @@ watch(showDropdown, (value) => {
 }
 
 .game-img {
+  position: relative;
   height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.75);
+  color: #cbd5e1;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.favorite-btn:hover,
+.favorite-btn.active {
+  background: #f472b6;
+  color: white;
 }
 
 .img-placeholder {
@@ -1192,6 +1655,48 @@ watch(showDropdown, (value) => {
 
 .history-item:last-child {
   border-bottom: none;
+}
+
+.history-item.clickable {
+  cursor: pointer;
+}
+
+.history-item.clickable:hover {
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.vip-lock-tag {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  color: #f472b6;
+}
+
+.history-limit-hint {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #2a3748;
+}
+
+.panel-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #2a3748;
+  text-align: right;
+}
+
+.clear-history-btn {
+  background: transparent;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.clear-history-btn:hover {
+  color: #f87171;
+  border-color: #f87171;
 }
 
 .history-name {

@@ -43,15 +43,53 @@ public class UserService {
 
     // ... existing code ...
 
+    public LocalDateTime activateVip(Long userId, String planCode) {
+        return userRepository.findById(userId)
+                .map(user -> {
+                    LocalDateTime expiryTime = calculateExpiryTime(user, planCode);
+                    if (user.getVipStartTime() == null) {
+                        user.setVipStartTime(LocalDateTime.now());
+                    }
+                    user.setVip(true);
+                    user.setVipExpiryTime(expiryTime);
+                    userRepository.save(user);
+                    return expiryTime;
+                })
+                .orElse(null);
+    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    private LocalDateTime calculateExpiryTime(User user, String planCode) {
+        if ("lifetime".equals(planCode)) {
+            return null;
+        }
+
+        LocalDateTime base = LocalDateTime.now();
+        if (user.isVip() && user.getVipExpiryTime() != null && user.getVipExpiryTime().isAfter(base)) {
+            base = user.getVipExpiryTime();
+        }
+
+        return switch (planCode) {
+            case "monthly" -> base.plusMonths(1);
+            case "quarterly" -> base.plusMonths(3);
+            case "yearly" -> base.plusYears(1);
+            default -> throw new IllegalArgumentException("无效的订阅方案");
+        };
+    }
+
+    // 保留旧方法签名供兼容
     public void activateVip(Long userId, LocalDateTime expiryTime) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        userRepository.findById(userId).ifPresent(user -> {
+            if (user.getVipStartTime() == null) {
+                user.setVipStartTime(LocalDateTime.now());
+            }
             user.setVip(true);
             user.setVipExpiryTime(expiryTime);
-            user.setVipStartTime(LocalDateTime.now());
             userRepository.save(user);
-        }
+        });
     }
 
     public void updateUserEmail(Long userId, String email) {
@@ -61,6 +99,19 @@ public class UserService {
             user.setEmail(email);
             userRepository.save(user);
         }
+    }
+
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return false;
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return false;
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
     }
 }
 

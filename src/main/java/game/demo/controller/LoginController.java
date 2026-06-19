@@ -3,6 +3,8 @@ package game.demo.controller;
 import game.demo.dto.LoginRequest;
 import game.demo.entity.User;
 import game.demo.service.UserService;
+import game.demo.service.VipExpiryService;
+import game.demo.util.UserVipResponseHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -25,6 +27,9 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private VipExpiryService vipExpiryService;
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
@@ -45,6 +50,8 @@ public class LoginController {
         boolean isAuthenticated = userService.authenticate(username, password);
 
         if (isAuthenticated) {
+            vipExpiryService.processExpiredVipUsers();
+            user = userService.getUserById(user.getId());
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute("currentUser", user);
             session.setMaxInactiveInterval(1800);
@@ -53,14 +60,15 @@ public class LoginController {
             response.put("message", "登录成功");
             response.put("username", user.getUsername());
 
-            boolean isVip = user.isVip() || user.isAdmin();
+            boolean isVip = user.hasValidPermission() || user.isAdmin();
             response.put("isVip", isVip);
             response.put("isAdmin", user.isAdmin());
 
             response.put("vipExpiryTime", user.getVipExpiryTime() != null
                     ? user.getVipExpiryTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    : null);
+                    : (user.isVipLifetime() ? "永久" : null));
             response.put("vipStatus", user.getPermissionStatus());
+            UserVipResponseHelper.appendVipFields(user, response);
             log.info("登录成功 - 用户名: {}, VIP状态: {}, SessionId: {}", username, user.getPermissionStatus(), session.getId());
             return ResponseEntity.ok(response);
         } else {
@@ -84,18 +92,28 @@ public class LoginController {
 
         User user = (User) session.getAttribute("currentUser");
         if (user != null) {
-            session.setMaxInactiveInterval(1800);
-            log.debug("检查登录状态 - 用户已登录: {}", user.getUsername());
-            response.put("loggedIn", true);
-            response.put("username", user.getUsername());
-            response.put("isAdmin", user.isAdmin());
+            vipExpiryService.processExpiredVipUsers();
+            user = userService.getUserById(user.getId());
+            if (user != null) {
+                session.setAttribute("currentUser", user);
+                session.setMaxInactiveInterval(1800);
+                log.debug("检查登录状态 - 用户已登录: {}", user.getUsername());
+                response.put("loggedIn", true);
+                response.put("username", user.getUsername());
+                response.put("isAdmin", user.isAdmin());
 
-            boolean isVip = user.isVip() || user.isAdmin();
-            response.put("isVip", isVip);
-            response.put("vipExpiryTime", user.getVipExpiryTime() != null
-                    ? user.getVipExpiryTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    : null);
-            response.put("vipStatus", user.getPermissionStatus());
+                boolean isVip = user.hasValidPermission() || user.isAdmin();
+                response.put("isVip", isVip);
+                response.put("vipExpiryTime", user.getVipExpiryTime() != null
+                        ? user.getVipExpiryTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        : (user.isVipLifetime() ? "永久" : null));
+                response.put("vipStatus", user.getPermissionStatus());
+                UserVipResponseHelper.appendVipFields(user, response);
+            } else {
+                session.invalidate();
+                log.debug("检查登录状态 - 会话用户已不存在");
+                response.put("loggedIn", false);
+            }
         } else {
             log.debug("检查登录状态 - 用户未登录（会话中无用户）");
             response.put("loggedIn", false);

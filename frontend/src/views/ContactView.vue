@@ -26,50 +26,14 @@
         </router-link>
       </nav>
 
-      <div class="avatar-wrapper" @click="toggleDropdown">
-        <button class="avatar-btn">
-          <i
-              class="fas fa-user-circle avatar-icon"
-              :style="{ color: userStore.isLoggedIn ? '#c084fc' : '#94a3b8' }"
-          ></i>
-          <span class="avatar-text">
-            {{ userStore.isLoggedIn ? userStore.currentUser : '游客' }}
-            <i v-if="userStore.isLoggedIn" v-html="permissionIcon"></i>
-          </span>
-          <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
-        </button>
-
-        <div v-show="showDropdown" class="dropdown-menu">
-          <div v-if="userStore.isLoggedIn" class="user-info">
-            <i class="fas fa-user-check"></i> 欢迎，{{ userStore.currentUser }}
-            <br/>
-            <small style="color: #a78bfa;">
-              {{ permissionName }}
-              <span v-if="userStore.vipExpiryTime && userStore.vipExpiryTime !== '永久'">
-                (至 {{ userStore.vipExpiryTime }})
-              </span>
-            </small>
-          </div>
-
-          <button v-if="userStore.isAdmin" class="dropdown-item" @click="goToAdminPanel">
-            <i class="fas fa-shield-alt"></i> 管理后台
-          </button>
-
-          <button v-if="userStore.isLoggedIn" class="dropdown-item" @click="handleLogout">
-            <i class="fas fa-sign-out-alt"></i> 退出账号
-          </button>
-
-          <button v-else class="dropdown-item" @click="openLoginModal">
-            <i class="fas fa-sign-in-alt"></i> 登录
-          </button>
-
-          <div class="divider"></div>
-
-          <button class="dropdown-item" @click="openHistoryPanel">
-            <i class="fas fa-history"></i> 查看浏览记录
-          </button>
-        </div>
-      </div>
+      <UserAvatarMenu
+          :show-admin-dashboard="userStore.isAdmin"
+          :show-admin-games="userStore.isAdmin"
+          :show-admin-feedback="userStore.isAdmin"
+          show-browse-history
+          @login="openLoginModal"
+          @browse-history="openHistoryPanel"
+      />
     </header>
 
     <!-- 页面标题 -->
@@ -283,6 +247,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import UserAvatarMenu from '../components/UserAvatarMenu.vue'
 import { feedbackApi } from '../api/feedback'
 
 const router = useRouter()
@@ -352,7 +317,11 @@ function goToAdminPanel() {
 
 function openHistoryPanel() {
   showDropdown.value = false
-  alert('浏览记录功能请在首页查看')
+  if (userStore.isLoggedIn) {
+    router.push({ path: '/user-center', query: { tab: 'history' } })
+  } else {
+    router.push({ path: '/home', query: { history: '1' } })
+  }
 }
 
 async function handleSubmitFeedback() {

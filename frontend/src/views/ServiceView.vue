@@ -26,50 +26,14 @@
         </router-link>
       </nav>
 
-      <div class="avatar-wrapper" @click="toggleDropdown">
-        <button class="avatar-btn">
-          <i
-              class="fas fa-user-circle avatar-icon"
-              :style="{ color: userStore.isLoggedIn ? '#c084fc' : '#94a3b8' }"
-          ></i>
-          <span class="avatar-text">
-            {{ userStore.isLoggedIn ? userStore.currentUser : '游客' }}
-            <i v-if="userStore.isLoggedIn" v-html="permissionIcon"></i>
-          </span>
-          <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
-        </button>
-
-        <div v-show="showDropdown" class="dropdown-menu">
-          <div v-if="userStore.isLoggedIn" class="user-info">
-            <i class="fas fa-user-check"></i> 欢迎，{{ userStore.currentUser }}
-            <br/>
-            <small style="color: #a78bfa;">
-              {{ permissionName }}
-              <span v-if="userStore.vipExpiryTime && userStore.vipExpiryTime !== '永久'">
-                (至 {{ userStore.vipExpiryTime }})
-              </span>
-            </small>
-          </div>
-
-          <button v-if="userStore.isAdmin" class="dropdown-item" @click="goToAdminPanel">
-            <i class="fas fa-shield-alt"></i> 管理后台
-          </button>
-
-          <button v-if="userStore.isLoggedIn" class="dropdown-item" @click="handleLogout">
-            <i class="fas fa-sign-out-alt"></i> 退出账号
-          </button>
-
-          <button v-else class="dropdown-item" @click="openLoginModal">
-            <i class="fas fa-sign-in-alt"></i> 登录
-          </button>
-
-          <div class="divider"></div>
-
-          <button class="dropdown-item" @click="openHistoryPanel">
-            <i class="fas fa-history"></i> 查看浏览记录
-          </button>
-        </div>
-      </div>
+      <UserAvatarMenu
+          :show-admin-dashboard="userStore.isAdmin"
+          :show-admin-games="userStore.isAdmin"
+          :show-admin-feedback="userStore.isAdmin"
+          show-browse-history
+          @login="openLoginModal"
+          @browse-history="openHistoryPanel"
+      />
     </header>
 
     <!-- 页面标题 -->
@@ -79,6 +43,8 @@
       </h1>
       <p class="page-subtitle">解锁全部游戏，享受专属特权</p>
     </section>
+
+    <VipExpiryBanner :dismissible="true" />
 
     <!-- 当前会员状态 -->
     <section v-if="userStore.isLoggedIn" class="current-status">
@@ -112,11 +78,19 @@
             <span class="status-value">{{ userStore.vipExpiryTime }}</span>
           </div>
 
-          <div class="status-item">
-            <span class="status-label">管理员权限</span>
-            <span class="status-value" :class="userStore.isAdmin ? 'active' : 'inactive'">
-              {{ userStore.isAdmin ? '是' : '否' }}
+          <div
+              v-if="userStore.vipActive && userStore.vipDaysRemaining != null && !userStore.isVipLifetime"
+              class="status-item"
+          >
+            <span class="status-label">剩余天数</span>
+            <span class="status-value" :class="userStore.vipDaysRemaining <= 10 ? 'warning' : 'active'">
+              {{ userStore.vipDaysRemaining === 0 ? '今日到期' : `${userStore.vipDaysRemaining} 天` }}
             </span>
+          </div>
+
+          <div v-if="userStore.isAdmin" class="status-item">
+            <span class="status-label">管理员权限</span>
+            <span class="status-value active">是</span>
           </div>
         </div>
       </div>
@@ -129,136 +103,62 @@
         <p>灵活多样的会员计划，满足不同需求</p>
       </div>
 
-      <div class="pricing-grid">
-        <!-- 月度套餐 -->
-        <div class="pricing-card">
-          <div class="card-header monthly">
-            <i class="fas fa-calendar-alt"></i>
-            <h3>月度会员</h3>
-          </div>
+      <div v-if="plansLoading" class="pricing-loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>加载套餐中...</p>
+      </div>
 
-          <div class="card-body">
-            <div class="price">
-              <span class="currency">¥</span>
-              <span class="amount">29</span>
-              <span class="period">/月</span>
-            </div>
+      <div v-else-if="membershipPlans.length === 0" class="pricing-empty">
+        <p>暂无可用的会员套餐</p>
+      </div>
 
-            <ul class="features">
-              <li><i class="fas fa-check"></i> 解锁全部 VIP 游戏</li>
-              <li><i class="fas fa-check"></i> 无广告体验</li>
-              <li><i class="fas fa-check"></i> 优先客服支持</li>
-              <li><i class="fas fa-check"></i> 游戏存档云同步</li>
-              <li class="disabled"><i class="fas fa-times"></i> 专属游戏折扣</li>
-              <li class="disabled"><i class="fas fa-times"></i> 新功能抢先体验</li>
-            </ul>
-
-            <button class="subscribe-btn monthly" @click="handleSubscribe('monthly')">
-              立即订阅
-            </button>
-          </div>
-        </div>
-
-        <!-- 季度套餐（推荐） -->
-        <div class="pricing-card recommended">
-          <div class="recommended-badge">
+      <div v-else class="pricing-grid">
+        <div
+            v-for="plan in membershipPlans"
+            :key="plan.id"
+            class="pricing-card"
+            :class="{
+              recommended: plan.recommended,
+              'lifetime-card': plan.planCode === 'lifetime'
+            }"
+        >
+          <div v-if="plan.recommended" class="recommended-badge">
             <i class="fas fa-star"></i> 最受欢迎
           </div>
 
-          <div class="card-header quarterly">
-            <i class="fas fa-gem"></i>
-            <h3>季度会员</h3>
+          <div class="card-header" :class="plan.planCode">
+            <i :class="planIcons[plan.planCode]"></i>
+            <h3>{{ plan.name }}</h3>
           </div>
 
           <div class="card-body">
             <div class="price">
+              <span v-if="plan.originalPrice" class="original-price-inline">¥{{ formatPrice(plan.originalPrice) }}</span>
               <span class="currency">¥</span>
-              <span class="amount">79</span>
-              <span class="period">/季</span>
+              <span class="amount">{{ formatPrice(plan.price) }}</span>
+              <span class="period">{{ plan.periodLabel || '' }}</span>
             </div>
 
-            <div class="savings">
-              省 ¥8（相当于 ¥26/月）
+            <div v-if="getSavingsText(plan)" class="savings">
+              {{ getSavingsText(plan) }}
             </div>
 
             <ul class="features">
-              <li><i class="fas fa-check"></i> 解锁全部 VIP 游戏</li>
-              <li><i class="fas fa-check"></i> 无广告体验</li>
-              <li><i class="fas fa-check"></i> 优先客服支持</li>
-              <li><i class="fas fa-check"></i> 游戏存档云同步</li>
-              <li><i class="fas fa-check"></i> 专属游戏折扣（9折）</li>
-              <li class="disabled"><i class="fas fa-times"></i> 新功能抢先体验</li>
+              <li
+                  v-for="(feature, index) in planFeatures[plan.planCode] || []"
+                  :key="index"
+                  :class="{ disabled: feature.disabled }"
+              >
+                <i :class="feature.disabled ? 'fas fa-times' : 'fas fa-check'"></i>
+                {{ feature.text }}
+              </li>
             </ul>
 
-            <button class="subscribe-btn quarterly" @click="handleSubscribe('quarterly')">
-              立即订阅
-            </button>
-          </div>
-        </div>
-
-        <!-- 年度套餐 -->
-        <div class="pricing-card">
-          <div class="card-header yearly">
-            <i class="fas fa-trophy"></i>
-            <h3>年度会员</h3>
-          </div>
-
-          <div class="card-body">
-            <div class="price">
-              <span class="currency">¥</span>
-              <span class="amount">299</span>
-              <span class="period">/年</span>
-            </div>
-
-            <div class="savings">
-              省 ¥49（相当于 ¥25/月）
-            </div>
-
-            <ul class="features">
-              <li><i class="fas fa-check"></i> 解锁全部 VIP 游戏</li>
-              <li><i class="fas fa-check"></i> 无广告体验</li>
-              <li><i class="fas fa-check"></i> 优先客服支持</li>
-              <li><i class="fas fa-check"></i> 游戏存档云同步</li>
-              <li><i class="fas fa-check"></i> 专属游戏折扣（8折）</li>
-              <li><i class="fas fa-check"></i> 新功能抢先体验</li>
-            </ul>
-
-            <button class="subscribe-btn yearly" @click="handleSubscribe('yearly')">
-              立即订阅
-            </button>
-          </div>
-        </div>
-
-        <!-- 终身会员 -->
-        <div class="pricing-card lifetime-card">
-          <div class="card-header lifetime">
-            <i class="fas fa-crown"></i>
-            <h3>终身会员</h3>
-          </div>
-
-          <div class="card-body">
-            <div class="price">
-              <span class="currency">¥</span>
-              <span class="amount">999</span>
-              <span class="period">一次性</span>
-            </div>
-
-            <div class="savings">
-              永久有效，无限畅玩
-            </div>
-
-            <ul class="features">
-              <li><i class="fas fa-check"></i> 解锁全部 VIP 游戏</li>
-              <li><i class="fas fa-check"></i> 无广告体验</li>
-              <li><i class="fas fa-check"></i> 终身优先客服支持</li>
-              <li><i class="fas fa-check"></i> 游戏存档云同步</li>
-              <li><i class="fas fa-check"></i> 专属游戏折扣（7折）</li>
-              <li><i class="fas fa-check"></i> 新功能永久抢先体验</li>
-              <li><i class="fas fa-check"></i> 专属会员标识</li>
-              <li><i class="fas fa-check"></i> 生日特别礼包</li>
-            </ul>
-
-            <button class="subscribe-btn lifetime" @click="handleSubscribe('lifetime')">
+            <button
+                class="subscribe-btn"
+                :class="plan.planCode"
+                @click.stop="handleSubscribe(plan)"
+            >
               立即订阅
             </button>
           </div>
@@ -390,21 +290,127 @@
         </div>
       </div>
     </div>
+
+    <!-- 模拟支付弹窗 -->
+    <div v-if="showPaymentModal" class="modal-overlay" @click.self="closePaymentModal">
+      <div class="modal payment-modal" @click.stop>
+        <div class="modal-header">
+          <h2><i class="fas fa-credit-card"></i> 确认支付</h2>
+          <button class="close-btn" :disabled="paying" @click="closePaymentModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div v-if="selectedPlan" class="modal-body payment-body">
+            <div v-if="paymentStep === 'confirm'" class="payment-summary">
+            <div class="payment-plan-name">{{ selectedPlan.name }}</div>
+            <div class="payment-amount">
+              <span class="currency">¥</span>
+              <span class="amount">{{ formatPrice(selectedPlan.price) }}</span>
+              <span class="period">{{ selectedPlan.periodLabel || '' }}</span>
+            </div>
+            <p v-if="getSavingsText(selectedPlan)" class="payment-savings">{{ getSavingsText(selectedPlan) }}</p>
+            <p v-if="pendingOrder?.orderId" class="payment-order-id">
+              订单号：#{{ formatOrderNo(pendingOrder.orderId) }}
+              <span v-if="creatingOrder" class="creating-tag">创建中...</span>
+            </p>
+            <p v-if="paymentError" class="payment-error">{{ paymentError }}</p>
+            <p class="payment-hint">演示环境：点击下方按钮将模拟支付成功并自动开通 VIP</p>
+          </div>
+
+          <div v-else-if="paymentStep === 'processing'" class="payment-processing">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>正在处理支付...</p>
+            <small>模拟支付网关回调中</small>
+          </div>
+
+          <div v-else class="payment-success">
+            <i class="fas fa-check-circle"></i>
+            <p>支付成功！</p>
+            <small>VIP 已激活，即将跳转至我的订阅</small>
+          </div>
+        </div>
+
+        <div v-if="paymentStep === 'confirm'" class="modal-footer">
+          <button class="btn-secondary" :disabled="paying || creatingOrder" @click="closePaymentModal">取消</button>
+          <button class="btn-primary" :disabled="paying || creatingOrder || !pendingOrder?.orderId" @click="startPayment">
+            <i class="fas fa-wallet"></i> {{ creatingOrder ? '创建订单中...' : '模拟支付' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import { membershipPlansApi } from '../api/membershipPlans'
+import { subscriptionApi } from '../api/subscription'
+import VipExpiryBanner from '../components/VipExpiryBanner.vue'
+import UserAvatarMenu from '../components/UserAvatarMenu.vue'
+import { showVipReminderOnce } from '../utils/vipReminder'
 
 const router = useRouter()
 const userStore = useUserStore()
 
 const showDropdown = ref(false)
 const showLoginPrompt = ref(false)
+const showPaymentModal = ref(false)
 const openFaq = ref(null)
 const selectedPlan = ref(null)
+const membershipPlans = ref([])
+const plansLoading = ref(false)
+const paying = ref(false)
+const creatingOrder = ref(false)
+const paymentStep = ref('confirm')
+const paymentError = ref('')
+const pendingOrder = ref(null)
+
+const planIcons = {
+  monthly: 'fas fa-calendar-alt',
+  quarterly: 'fas fa-gem',
+  yearly: 'fas fa-trophy',
+  lifetime: 'fas fa-crown'
+}
+
+const planFeatures = {
+  monthly: [
+    { text: '解锁全部 VIP 游戏' },
+    { text: '无广告体验' },
+    { text: '优先客服支持' },
+    { text: '游戏存档云同步' },
+    { text: '专属游戏折扣', disabled: true },
+    { text: '新功能抢先体验', disabled: true }
+  ],
+  quarterly: [
+    { text: '解锁全部 VIP 游戏' },
+    { text: '无广告体验' },
+    { text: '优先客服支持' },
+    { text: '游戏存档云同步' },
+    { text: '专属游戏折扣（9折）' },
+    { text: '新功能抢先体验', disabled: true }
+  ],
+  yearly: [
+    { text: '解锁全部 VIP 游戏' },
+    { text: '无广告体验' },
+    { text: '优先客服支持' },
+    { text: '游戏存档云同步' },
+    { text: '专属游戏折扣（8折）' },
+    { text: '新功能抢先体验' }
+  ],
+  lifetime: [
+    { text: '解锁全部 VIP 游戏' },
+    { text: '无广告体验' },
+    { text: '终身优先客服支持' },
+    { text: '游戏存档云同步' },
+    { text: '专属游戏折扣（7折）' },
+    { text: '新功能永久抢先体验' },
+    { text: '专属会员标识' },
+    { text: '生日特别礼包' }
+  ]
+}
 
 const permissionIcon = computed(() => {
   switch(userStore.permissionLevel) {
@@ -428,7 +434,29 @@ const permissionName = computed(() => {
 
 onMounted(async () => {
   await userStore.checkLoginStatus()
+  await loadMembershipPlans()
+  if (userStore.isLoggedIn) {
+    showVipReminderOnce(userStore, 'service')
+  }
 })
+
+async function loadMembershipPlans() {
+  plansLoading.value = true
+  try {
+    const response = await membershipPlansApi.getEnabledPlans()
+    membershipPlans.value = response.data
+  } catch (error) {
+    console.error('加载会员套餐失败:', error)
+  } finally {
+    plansLoading.value = false
+  }
+}
+
+function formatPrice(value) {
+  if (value == null) return '0'
+  const num = Number(value)
+  return Number.isInteger(num) ? String(num) : num.toFixed(2)
+}
 
 function toggleDropdown() {
   showDropdown.value = !showDropdown.value
@@ -447,30 +475,106 @@ async function handleLogout() {
 
 function goToAdminPanel() {
   showDropdown.value = false
-  router.push('/admin-feedback')
+  router.push('/admin-dashboard')
+}
+
+function goToSubscription() {
+  showDropdown.value = false
+  router.push('/subscription')
 }
 
 function openHistoryPanel() {
   showDropdown.value = false
-  alert('浏览记录功能请在首页查看')
+  if (userStore.isLoggedIn) {
+    router.push({ path: '/user-center', query: { tab: 'history' } })
+  } else {
+    router.push({ path: '/home', query: { history: '1' } })
+  }
 }
 
-function handleSubscribe(plan) {
+function getSavingsText(plan) {
+  return plan.computedSavingsText || plan.displaySavingsText || plan.savingsText || ''
+}
+
+function formatOrderNo(id) {
+  return String(id).padStart(6, '0')
+}
+
+async function handleSubscribe(plan) {
   if (!userStore.isLoggedIn) {
     selectedPlan.value = plan
     showLoginPrompt.value = true
     return
   }
 
-  // TODO: 集成支付系统
-  const planNames = {
-    monthly: '月度会员',
-    quarterly: '季度会员',
-    yearly: '年度会员',
-    lifetime: '终身会员'
-  }
+  selectedPlan.value = plan
+  pendingOrder.value = null
+  paymentStep.value = 'confirm'
+  paymentError.value = ''
+  showPaymentModal.value = true
 
-  alert(`您选择了${planNames[plan]}，支付功能暂未集成。\n\n在实际项目中，这里会跳转到支付页面。`)
+  await nextTick()
+  creatingOrder.value = true
+
+  try {
+    const createRes = await subscriptionApi.createPayment(plan.planCode)
+    if (!createRes.data.success) {
+      throw new Error(createRes.data.message || '创建订单失败')
+    }
+    pendingOrder.value = createRes.data
+  } catch (error) {
+    console.error('创建订单失败:', error)
+    const status = error.response?.status
+    if (status === 403) {
+      paymentError.value = '无权创建订单，请刷新页面后重新登录再试'
+    } else if (status === 401) {
+      paymentError.value = '登录已过期，请重新登录'
+      await userStore.checkLoginStatus()
+    } else {
+      paymentError.value = error.response?.data?.message || error.message || '创建订单失败，请稍后重试'
+    }
+  } finally {
+    creatingOrder.value = false
+  }
+}
+
+function closePaymentModal() {
+  if (paying.value || creatingOrder.value) return
+  showPaymentModal.value = false
+  selectedPlan.value = null
+  pendingOrder.value = null
+  paymentStep.value = 'confirm'
+  paymentError.value = ''
+}
+
+async function startPayment() {
+  if (!selectedPlan.value || paying.value || !pendingOrder.value?.orderId) return
+
+  paying.value = true
+  paymentStep.value = 'processing'
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1200))
+
+    const confirmRes = await subscriptionApi.confirmPayment(pendingOrder.value.orderId)
+    if (!confirmRes.data.success) {
+      throw new Error(confirmRes.data.message || '支付失败')
+    }
+
+    await userStore.checkLoginStatus()
+    paymentStep.value = 'success'
+
+    setTimeout(() => {
+      closePaymentModal()
+      router.push('/subscription')
+    }, 1500)
+  } catch (error) {
+    console.error('支付失败:', error)
+    paymentError.value = error.response?.data?.message || error.message || '支付失败，请重试'
+    paymentStep.value = 'confirm'
+  } finally {
+    paying.value = false
+  }
 }
 
 function closeLoginPrompt() {
@@ -692,6 +796,10 @@ function toggleFaq(index) {
   color: #10b981;
 }
 
+.status-value.warning {
+  color: #fbbf24;
+}
+
 .status-value.inactive {
   color: #ef4444;
 }
@@ -699,6 +807,20 @@ function toggleFaq(index) {
 /* 定价部分 */
 .pricing-section {
   margin-bottom: 64px;
+}
+
+.pricing-loading,
+.pricing-empty {
+  text-align: center;
+  padding: 48px;
+  color: #94a3b8;
+}
+
+.pricing-loading i {
+  font-size: 2rem;
+  color: #a78bfa;
+  margin-bottom: 12px;
+  display: block;
 }
 
 .section-header {
@@ -810,6 +932,14 @@ function toggleFaq(index) {
 .amount {
   font-size: 3.5rem;
   font-weight: 700;
+}
+
+.original-price-inline {
+  display: block;
+  color: #64748b;
+  text-decoration: line-through;
+  font-size: 1rem;
+  margin-bottom: 4px;
 }
 
 .period {
@@ -1076,5 +1206,72 @@ function toggleFaq(index) {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(124, 58, 237, 0.4);
+}
+
+.payment-modal {
+  max-width: 480px;
+}
+
+.payment-body {
+  text-align: center;
+}
+
+.payment-plan-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.payment-amount {
+  margin-bottom: 12px;
+}
+
+.payment-amount .amount {
+  font-size: 2.8rem;
+  font-weight: 700;
+}
+
+.payment-savings {
+  color: #10b981;
+  background: #10b98115;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.payment-hint {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.payment-error {
+  color: #ef4444;
+  background: #ef444420;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.payment-processing,
+.payment-success {
+  padding: 24px 0;
+  color: #cbd5e1;
+}
+
+.payment-processing i,
+.payment-success i {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.payment-processing i { color: #a78bfa; }
+.payment-success i { color: #10b981; }
+
+.payment-processing small,
+.payment-success small {
+  color: #94a3b8;
 }
 </style>

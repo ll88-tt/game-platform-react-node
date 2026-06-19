@@ -28,6 +28,9 @@ public class Game {
     private boolean vipOnly = false;
 
     @Column(nullable = false)
+    private boolean published = true;
+
+    @Column(nullable = false)
     private Long searchCount = 0L;
 
     public Game() {}
@@ -113,6 +116,14 @@ public class Game {
     // ... existing code ...
     public void setVipOnly(boolean vipOnly) {
         this.vipOnly = vipOnly;
+    }
+
+    public boolean isPublished() {
+        return published;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
     }
 
     public Long getSearchCount() {

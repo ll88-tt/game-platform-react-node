@@ -9,10 +9,40 @@ export const useUserStore = defineStore('user', () => {
     const isVip = ref(false)
     const vipExpiryTime = ref(null)
     const permissionLevel = ref('FREE')
+    const vipActive = ref(false)
+    const vipDaysRemaining = ref(null)
+    const vipExpired = ref(false)
+    const isVipLifetime = ref(false)
 
     const hasValidPermission = computed(() => {
-        return isAdmin.value || isVip.value
+        return isAdmin.value || vipActive.value
     })
+
+    function applyUserData(data) {
+        isLoggedIn.value = true
+        currentUser.value = data.username
+        isAdmin.value = data.isAdmin || false
+        isVip.value = data.isVip || false
+        vipExpiryTime.value = data.vipExpiryTime ?? null
+        vipActive.value = data.vipActive ?? (data.isVip || false)
+        vipDaysRemaining.value = data.vipDaysRemaining ?? null
+        vipExpired.value = data.vipExpired ?? false
+        isVipLifetime.value = data.isVipLifetime ?? false
+        permissionLevel.value = determinePermissionLevel(data)
+    }
+
+    function resetUser() {
+        isLoggedIn.value = false
+        currentUser.value = null
+        isAdmin.value = false
+        isVip.value = false
+        vipExpiryTime.value = null
+        permissionLevel.value = 'FREE'
+        vipActive.value = false
+        vipDaysRemaining.value = null
+        vipExpired.value = false
+        isVipLifetime.value = false
+    }
 
     async function checkLoginStatus() {
         try {
@@ -22,18 +52,13 @@ export const useUserStore = defineStore('user', () => {
             const data = response.data
 
             if (data.loggedIn) {
-                isLoggedIn.value = true
-                currentUser.value = data.username
-                isAdmin.value = data.isAdmin || false
-                isVip.value = data.isVip || false
-                vipExpiryTime.value = data.vipExpiryTime
-                permissionLevel.value = determinePermissionLevel(data)
+                applyUserData(data)
             } else {
-                logout()
+                resetUser()
             }
         } catch (error) {
             console.error('检查登录状态失败:', error)
-            logout()
+            resetUser()
         }
     }
 
@@ -48,13 +73,8 @@ export const useUserStore = defineStore('user', () => {
 
             const data = response.data
             if (data.success) {
-                isLoggedIn.value = true
-                currentUser.value = data.username
-                isAdmin.value = data.isAdmin || false
-                isVip.value = data.isVip || false
-                vipExpiryTime.value = data.vipExpiryTime
-                permissionLevel.value = determinePermissionLevel(data)
-                return { success: true }
+                applyUserData(data)
+                return { success: true, data }
             } else {
                 return { success: false, message: data.message }
             }
@@ -71,18 +91,13 @@ export const useUserStore = defineStore('user', () => {
         } catch (error) {
             console.error('登出错误:', error)
         } finally {
-            isLoggedIn.value = false
-            currentUser.value = null
-            isAdmin.value = false
-            isVip.value = false
-            vipExpiryTime.value = null
-            permissionLevel.value = 'FREE'
+            resetUser()
         }
     }
 
     function determinePermissionLevel(data) {
-        if (data.isAdmin) return 'LIFETIME'
-        if (!data.isVip) return 'FREE'
+        if (data.isAdmin || data.isVipLifetime) return 'LIFETIME'
+        if (!data.vipActive && !data.isVip) return 'FREE'
 
         const vipStatus = data.vipStatus || ''
         if (vipStatus.includes('终身') || vipStatus.includes('永久')) {
@@ -101,7 +116,7 @@ export const useUserStore = defineStore('user', () => {
         if (diffMonths >= 12) return 'YEARLY'
         if (diffMonths >= 3) return 'QUARTERLY'
         if (diffMonths >= 1) return 'MONTHLY'
-        return 'FREE'
+        return 'MONTHLY'
     }
 
     return {
@@ -111,6 +126,10 @@ export const useUserStore = defineStore('user', () => {
         isVip,
         vipExpiryTime,
         permissionLevel,
+        vipActive,
+        vipDaysRemaining,
+        vipExpired,
+        isVipLifetime,
         hasValidPermission,
         checkLoginStatus,
         login,
